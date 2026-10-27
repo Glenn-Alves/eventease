@@ -12,24 +12,38 @@ use Illuminate\Validation\Rule;
 class EventController extends Controller
 {
     public function index(Request $request)
-    {
-        $type = $request->query('type');
-        $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
+{
+    $type = $request->query('type');
+    $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
 
-        $mine = Event::where('user_id', auth()->id());
+    $mine = Event::where('user_id', auth()->id());
 
-        $counts = (clone $mine)
-            ->selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type');
+    $counts = (clone $mine)
+        ->selectRaw('type, count(*) as total')
+        ->groupBy('type')
+        ->pluck('total', 'type');
 
-        $events = $mine
-            ->when($type, fn ($query) => $query->where('type', $type))
-            ->orderBy('event_date')
-            ->get();
+    $events = $mine
+        ->withCount('registrations')
+        ->when($type, fn ($query) => $query->where('type', $type))
+        ->orderBy('event_date')
+        ->get();
 
-        return view('organizer.events.index', compact('events', 'type', 'counts'));
-    }
+    return view('organizer.events.index', compact('events', 'type', 'counts'));
+}
+
+public function show(Event $event)
+{
+    $this->checkOwner($event);
+
+    $event->loadCount('registrations');
+    $event->load([
+        'categories' => fn ($query) => $query->withCount('registrations'),
+        'registrations' => fn ($query) => $query->with(['user', 'category'])->latest(),
+    ]);
+
+    return view('organizer.events.show', compact('event'));
+}
 
     public function create()
     {

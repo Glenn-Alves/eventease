@@ -6,18 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-   public function up(): void
+public function up(): void
 {
-    Schema::table('events', function (Blueprint $table) {
-        $table->string('registration_mode')->default('builtin')->after('total_slots');
-        $table->string('external_form_url')->nullable()->after('registration_mode');
-        $table->json('form_theme')->nullable()->after('external_form_url');
-    });
+    if (! Schema::hasColumn('events', 'registration_mode')) {
+        Schema::table('events', function (Blueprint $table) {
+            $table->string('registration_mode')->default('builtin')->after('total_slots');
+            $table->string('external_form_url')->nullable()->after('registration_mode');
+            $table->json('form_theme')->nullable()->after('external_form_url');
+        });
+    }
 
-    Schema::table('event_fields', function (Blueprint $table) {
-        $table->text('description')->nullable()->after('label');
-        $table->string('width')->default('full')->after('type');
-    });
+    if (! Schema::hasColumn('event_fields', 'width')) {
+        Schema::table('event_fields', function (Blueprint $table) {
+            $table->text('description')->nullable()->after('label');
+            $table->string('width')->default('full')->after('type');
+        });
+    }
 }
 
 public function down(): void

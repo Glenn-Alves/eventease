@@ -26,11 +26,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-3">
             <h2 class="font-semibold text-xl text-gray-800">Registration Form: {{ $event->title }}</h2>
-            <div class="flex items-center gap-3 text-sm">
-                <a href="{{ route('organizer.events.index') }}" class="underline text-gray-600">Back to events</a>
-                <a href="{{ route('organizer.events.preview', $event) }}" target="_blank"
-                   class="px-3 py-1 border border-gray-800 rounded-md">Preview form (save first)</a>
-            </div>
+            <a href="{{ route('organizer.events.index') }}" class="underline text-sm text-gray-600">Back to events</a>
         </div>
     </x-slot>
 
@@ -263,26 +259,143 @@
                             Show the event thumbnail as a banner on top of the form
                         </label>
                     </div>
+                </div>
 
-                    <div class="mt-6">
-                        <p class="text-sm font-semibold mb-2">Live preview</p>
-                        <div class="p-5 border border-gray-200"
-                             :style="`background:${theme.background}; border-radius:${radii[theme.radius]}; font-family:${fonts[theme.font]}; color:${theme.text}`">
-                            <div class="p-5" :style="`background:${theme.card}; border-radius:${radii[theme.radius]}`">
-                                <h4 class="text-xl font-bold" x-text="theme.title || @js('Register for '.$event->title)"></h4>
-                                <p class="mt-1 text-sm opacity-80" x-text="theme.intro || 'Your intro text appears here.'"></p>
-                                <div class="mt-4 px-3 py-2 text-sm bg-white border border-gray-300"
-                                     :style="`border-radius:${radii[theme.radius]}; color:#6b7280`">Sample answer box</div>
-                                <button type="button" class="mt-4 px-5 py-2 font-semibold"
-                                        :style="`background:${theme.primary}; color:${textOn(theme.primary)}; border-radius:${radii[theme.radius]}`"
-                                        x-text="theme.button || 'Register'"></button>
+                {{-- 5. Live preview of the whole form --}}
+                <div class="bg-white p-6 rounded shadow">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-semibold text-lg">Live preview</h3>
+                            <p class="text-sm text-gray-600">Your whole form, as participants will see it. It updates as you type.</p>
+                        </div>
+                        <button type="button" x-on:click="openPreview($el.closest('form'))"
+                                class="px-3 py-1 border border-gray-800 text-sm rounded-md">Open preview in new page</button>
+                    </div>
+
+                    <div class="mt-4 p-5 border border-gray-200"
+                         :style="`background:${theme.background}; border-radius:${radii[theme.radius]}; font-family:${fonts[theme.font]}; color:${theme.text}`">
+                        <div class="p-5" :style="`background:${theme.card}; border-radius:${radii[theme.radius]}`">
+
+                            <h4 class="text-xl font-bold" x-text="theme.title || @js('Register for '.$event->title)"></h4>
+                            <p class="mt-1 text-sm opacity-80 whitespace-pre-line" x-show="theme.intro" x-text="theme.intro"></p>
+                            <p class="mt-3 text-xs opacity-70">Registering as <strong>Participant name</strong> (participant@email.com)</p>
+
+                            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                                {{-- Categories --}}
+                                <template x-if="categories.length">
+                                    <div class="sm:col-span-2">
+                                        <div class="pb-2 border-b-2 font-semibold" :style="`border-color:${theme.primary}`">Choose your category</div>
+
+                                        <div class="mt-2 space-y-2">
+                                            <template x-for="(cat, i) in categories" :key="i">
+                                                <div class="p-3 text-sm bg-white border"
+                                                     :style="`border-radius:${radii[theme.radius]}; color:#111827; border-color:${i === 0 ? theme.primary : '#d1d5db'}; ${i === 0 ? 'box-shadow:0 0 0 2px ' + theme.primary : ''}`">
+                                                    <div class="flex justify-between font-semibold">
+                                                        <span x-text="cat.name || 'Category name'"></span>
+                                                        <span x-text="'PHP ' + Number(cat.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })"></span>
+                                                    </div>
+                                                    <div class="mt-1 text-xs text-gray-500" x-text="(cat.slots || 0) + ' slots left'"></div>
+                                                    <ul class="list-disc ms-5 mt-1 text-xs text-gray-500">
+                                                        <template x-for="(line, n) in optionList(cat.inclusions)" :key="n">
+                                                            <li x-text="line"></li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                {{-- Blocks in the same order as the builder --}}
+                                <template x-for="block in blocks" :key="block.uid">
+                                    <div :class="(block.type === 'section' || block.type === 'note' || block.width !== 'half') ? 'sm:col-span-2' : ''">
+
+                                        <template x-if="block.type === 'section'">
+                                            <div class="pt-3 pb-2 border-b-2" :style="`border-color:${theme.primary}`">
+                                                <h5 class="text-lg font-semibold" x-text="block.label || 'Section heading'"></h5>
+                                                <p class="text-sm opacity-70 whitespace-pre-line" x-show="block.description" x-text="block.description"></p>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="block.type === 'note'">
+                                            <div class="p-3 text-sm whitespace-pre-line"
+                                                 :style="`border-left:4px solid ${theme.primary}; background:rgba(0,0,0,.04); border-radius:${radii[theme.radius]}`">
+                                                <strong x-text="block.label || 'Note title'"></strong>
+                                                <div class="mt-1" x-show="block.description" x-text="block.description"></div>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="isInput(block.type)">
+                                            <div>
+                                                <label class="block text-sm font-medium">
+                                                    <span x-text="block.label || 'Question'"></span>
+                                                    <span x-show="block.required" class="text-red-600">*</span>
+                                                </label>
+                                                <p class="text-xs opacity-70 whitespace-pre-line" x-show="block.description" x-text="block.description"></p>
+
+                                                <template x-if="['text', 'number', 'date'].includes(block.type)">
+                                                    <div class="mt-1 px-3 py-2 text-sm bg-white border border-gray-300 text-gray-400"
+                                                         :style="`border-radius:${radii[theme.radius]}`"
+                                                         x-text="block.type === 'date' ? 'mm/dd/yyyy' : (block.type === 'number' ? '0' : 'Short answer')"></div>
+                                                </template>
+
+                                                <template x-if="block.type === 'textarea'">
+                                                    <div class="mt-1 px-3 py-2 h-20 text-sm bg-white border border-gray-300 text-gray-400"
+                                                         :style="`border-radius:${radii[theme.radius]}`">Long answer</div>
+                                                </template>
+
+                                                <template x-if="block.type === 'dropdown'">
+                                                    <div class="mt-1 px-3 py-2 text-sm bg-white border border-gray-300 text-gray-400 flex justify-between"
+                                                         :style="`border-radius:${radii[theme.radius]}`">
+                                                        <span x-text="optionList(block.options)[0] || '-- Select option --'"></span>
+                                                        <span>&#9662;</span>
+                                                    </div>
+                                                </template>
+
+                                                <template x-if="block.type === 'radio'">
+                                                    <div class="mt-1 space-y-1 text-sm">
+                                                        <template x-for="(o, n) in optionList(block.options)" :key="n">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="inline-block w-3.5 h-3.5 rounded-full border-2" :style="`border-color:${theme.primary}`"></span>
+                                                                <span x-text="o"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+
+                                                <template x-if="block.type === 'checkbox'">
+                                                    <div class="mt-1 flex flex-wrap gap-2">
+                                                        <template x-for="(o, n) in optionList(block.options)" :key="n">
+                                                            <span class="inline-block px-3 py-1 text-sm border"
+                                                                  :style="`border-color:${theme.primary}; border-radius:${radii[theme.radius]}`"
+                                                                  x-text="o"></span>
+                                                        </template>
+                                                    </div>
+                                                </template>
+
+                                                <p class="mt-1 text-xs opacity-60"
+                                                   x-show="hasOptions(block.type) && optionList(block.options).length === 0">Add options in the builder above.</p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
                             </div>
+
+                            <button type="button" class="mt-6 px-6 py-3 font-semibold"
+                                    :style="`background:${theme.primary}; color:${textOn(theme.primary)}; border-radius:${radii[theme.radius]}`"
+                                    x-text="theme.button || 'Register'"></button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <x-primary-button>Save Form</x-primary-button>
+            <div class="flex flex-wrap items-center gap-3">
+                <x-primary-button>Save Form</x-primary-button>
+                <button type="button" x-on:click="openPreview($el.closest('form'))"
+                        class="px-4 py-2 border border-gray-800 text-sm rounded-md">Open preview in new page</button>
+                <span class="text-xs text-gray-500">The preview shows what is on screen now, even before you save.</span>
+            </div>
         </form>
     </div>
 
@@ -295,6 +408,7 @@
                 theme: @json($initialTheme),
                 fonts: @json(\App\Models\Event::FONTS),
                 radii: @json(\App\Models\Event::RADII),
+                previewUrl: @json(route('organizer.events.preview.draft', $event)),
                 counter: 0,
                 palette: [
                     { type: 'section', label: 'Section heading' },
@@ -359,6 +473,10 @@
                     return ['dropdown', 'radio', 'checkbox'].includes(type);
                 },
 
+                optionList(text) {
+                    return (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+                },
+
                 typeLabel(type) {
                     const found = this.palette.find(item => item.type === type);
                     return found ? found.label : type;
@@ -374,6 +492,17 @@
                     const n = parseInt((hex || '#000000').slice(1), 16);
                     const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
                     return ((r * 299 + g * 587 + b * 114) / 1000) > 150 ? '#111827' : '#ffffff';
+                },
+
+                // Sends the form as it is now to the preview page in a new tab. Nothing is saved.
+                openPreview(form) {
+                    const oldAction = form.action;
+                    const oldTarget = form.target;
+                    form.action = this.previewUrl;
+                    form.target = '_blank';
+                    form.submit();
+                    form.action = oldAction;
+                    form.target = oldTarget;
                 },
             }));
         });

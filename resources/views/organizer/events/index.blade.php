@@ -17,53 +17,56 @@
                 <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('status') }}</div>
             @endif
 
-            <div class="bg-white rounded shadow overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="p-3">Image</th>
-                            <th class="p-3">Title</th>
-                            <th class="p-3">Type</th>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Time</th>
-                            <th class="p-3">Location</th>
-                            <th class="p-3">Slots</th>
-                            <th class="p-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($events as $event)
-                            <tr class="border-t">
-                                <td class="p-3">
-                                    @if ($event->thumbnailUrl())
-                                        <img src="{{ $event->thumbnailUrl() }}" alt="" class="w-20 aspect-video object-cover rounded">
-                                    @else
-                                        <div class="w-20 aspect-video bg-gray-200 rounded"></div>
-                                    @endif
-                                </td>
-                                <td class="p-3">{{ $event->title }}</td>
-                                <td class="p-3">{{ \App\Models\Event::TYPES[$event->type] ?? 'Others' }}</td>
-                                <td class="p-3">{{ $event->event_date->format('M d, Y') }}</td>
-                                <td class="p-3">{{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}</td>
-                                <td class="p-3">{{ $event->location }}</td>
-                                <td class="p-3">{{ $event->total_slots }}</td>
-                                <td class="p-3">
-                                    <div class="flex gap-3">
-                                        <a href="{{ route('organizer.events.form.edit', $event) }}" class="text-emerald-600 underline">Form</a>
-                                        <a href="{{ route('organizer.events.edit', $event) }}" class="text-indigo-600 underline">Edit</a>
-                                        <form method="POST" action="{{ route('organizer.events.destroy', $event) }}" onsubmit="return confirm('Delete this event?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="text-red-600 underline">Delete</button>
-                                        </form>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                @forelse ($events as $event)
+                    @php
+                        $taken = $event->registrations_count;
+                        $percent = $event->total_slots > 0 ? min(100, round($taken / $event->total_slots * 100)) : 0;
+                    @endphp
+
+                    <div class="bg-white rounded shadow overflow-hidden flex flex-col">
+                        @if ($event->thumbnailUrl())
+                            <img src="{{ $event->thumbnailUrl() }}" alt="{{ $event->title }}" class="w-full aspect-video object-cover">
+                        @else
+                            <div class="w-full aspect-video bg-gray-200 flex items-center justify-center text-sm text-gray-500">No image</div>
+                        @endif
+
+                        <div class="p-5 flex flex-col flex-1">
+                            <span class="self-start text-xs px-2 py-1 bg-gray-100 rounded">
+                                {{ \App\Models\Event::TYPES[$event->type] ?? 'Others' }}
+                            </span>
+
+                            <h3 class="font-semibold text-lg mt-2">{{ $event->title }}</h3>
+
+                            <p class="text-sm text-gray-600 mt-1">
+                                {{ $event->event_date->format('M d, Y') }} at
+                                {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}
+                            </p>
+                            <p class="text-sm text-gray-600">{{ $event->location }}</p>
+
+                            <div class="mt-3">
+                                @if ($event->registration_mode === 'external')
+                                    <p class="text-sm text-gray-500">Uses an external form</p>
+                                @else
+                                    <div class="flex justify-between text-xs text-gray-600">
+                                        <span>{{ $taken }} of {{ $event->total_slots }} registered</span>
+                                        <span>{{ $percent }}%</span>
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="8" class="p-6 text-center text-gray-500">No events here yet.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    <div class="mt-1 h-2 bg-gray-200 rounded">
+                                        <div class="h-2 bg-gray-800 rounded" style="width: {{ $percent }}%"></div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <a href="{{ route('organizer.events.show', $event) }}"
+                               class="mt-auto pt-4 block">
+                                <span class="block text-center px-4 py-2 bg-gray-800 text-white text-sm rounded-md">View</span>
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <p class="col-span-full text-gray-500">No events here yet.</p>
+                @endforelse
             </div>
         </div>
     </div>

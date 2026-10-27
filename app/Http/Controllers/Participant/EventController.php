@@ -13,26 +13,41 @@ use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
-    public function index(Request $request)
-    {
-        $type = $request->query('type');
-        $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
+   public function index(Request $request)
+{
+    $type = $request->query('type');
+    $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
 
-        $upcoming = Event::whereDate('event_date', '>=', today());
+    $upcoming = Event::whereDate('event_date', '>=', today());
 
-        $counts = (clone $upcoming)
-            ->selectRaw('type, count(*) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type');
+    // Number of events per type, shown in the menu
+    $counts = (clone $upcoming)
+        ->selectRaw('type, count(*) as total')
+        ->groupBy('type')
+        ->pluck('total', 'type');
 
-        $events = $upcoming
-            ->withCount('registrations')
-            ->when($type, fn ($query) => $query->where('type', $type))
-            ->orderBy('event_date')
-            ->get();
+    $events = $upcoming
+        ->withCount('registrations')
+        ->when($type, fn ($query) => $query->where('type', $type))
+        ->orderBy('event_date')
+        ->get();
 
-        return view('participant.events.index', compact('events', 'type', 'counts'));
-    }
+    $user = auth()->user();
+
+    $myCount = $user->registrations()->count();
+    $registeredIds = $user->registrations()->pluck('event_id');
+
+    $nextRegistered = $user->registrations()
+        ->with('event')
+        ->whereHas('event', fn ($query) => $query->whereDate('event_date', '>=', today()))
+        ->get()
+        ->sortBy(fn ($registration) => $registration->event->event_date)
+        ->first();
+
+    return view('participant.dashboard', compact(
+        'events', 'type', 'counts', 'myCount', 'registeredIds', 'nextRegistered'
+    ));
+}
 
     public function show(Event $event)
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Organizer;
 
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCategory;
@@ -39,6 +40,105 @@ class FormDesignerController extends Controller
             'preview' => true,
         ]);
     }
+
+    // Shows the participant page using the form as it is on screen now. Nothing is saved.
+public function previewDraft(Request $request, Event $event)
+{
+    $this->checkOwner($event);
+
+    $defaults = Event::THEME_DEFAULTS;
+    $input = (array) $request->input('theme', []);
+
+    $text = fn ($value, int $max) => is_string($value) ? Str::limit($value, $max, '') : '';
+
+    $pickColor = fn (string $key) => (isset($input[$key]) && is_string($input[$key]) && preg_match('/^#[0-9a-fA-F]{6}$/', $input[$key]))
+        ? $input[$key]
+        : $defaults[$key];
+
+    $font = is_string($input['font'] ?? null) ? $input['font'] : '';
+    $radius = is_string($input['radius'] ?? null) ? $input['radius'] : '';
+
+    $url = $text($request->input('external_form_url'), 500);
+
+    // These changes stay in memory only. The model is never saved here.
+    $event->registration_mode = $request->input('registration_mode') === 'external' ? 'external' : 'builtin';
+    $event->external_form_url = Str::startsWith($url, 'https://') ? $url : null;
+    $event->registrations_count = 0;
+    $event->form_theme = [
+        'primary' => $pickColor('primary'),
+        'background' => $pickColor('background'),
+        'card' => $pickColor('card'),
+        'text' => $pickColor('text'),
+        'font' => array_key_exists($font, Event::FONTS) ? $font : $defaults['font'],
+        'radius' => array_key_exists($radius, Event::RADII) ? $radius : $defaults['radius'],
+        'title' => $text($input['title'] ?? '', 120),
+        'intro' => $text($input['intro'] ?? '', 1000),
+        'button' => $text($input['button'] ?? '', 40) ?: $defaults['button'],
+        'show_banner' => $request->boolean('theme.show_banner'),
+    ];
+
+    $blocks = collect((array) $request->input('blocks', []))
+        ->sortKeys()
+        ->filter(fn ($block) => is_array($block) && in_array($block['type'] ?? null, self::BLOCK_TYPES, true))
+        ->values();
+
+    $fields = $blocks->map(function ($block, $index) use ($text) {
+        $type = $block['type'];
+        $isInput = ! in_array($type, ['section', 'note']);
+
+        $field = new EventField([
+            'label' => $text($block['label'] ?? '', 255) ?: 'Untitled',
+            'description' => $text($block['description'] ?? '', 2000) ?: null,
+            'type' => $type,
+            'width' => ($isInput && ($block['width'] ?? '') === 'half') ? 'half' : 'full',
+            'options' => in_array($type, ['dropdown', 'radio', 'checkbox'])
+                ? $this->previewOptions($block['options'] ?? '')
+                : null,
+            'is_required' => $isInput && ! empty($block['required']),
+        ]);
+        $field->id = -($index + 1);
+
+        return $field;
+    });
+
+    $categories = collect((array) $request->input('categories', []))
+        ->sortKeys()
+        ->filter(fn ($item) => is_array($item))
+        ->values()
+        ->map(function ($item, $index) use ($text) {
+            $endsAt = $item['ends_at'] ?? null;
+
+            $category = new EventCategory([
+                'name' => $text($item['name'] ?? '', 100) ?: 'Category',
+                'price' => is_numeric($item['price'] ?? null) ? $item['price'] : 0,
+                'slots' => (int) ($item['slots'] ?? 0) ?: 100,
+                'inclusions' => $text($item['inclusions'] ?? '', 2000),
+                'registration_ends_at' => (is_string($endsAt) && strtotime($endsAt)) ? $endsAt : null,
+            ]);
+            $category->id = -($index + 1);
+            $category->registrations_count = 0;
+
+            return $category;
+        });
+
+    $event->setRelation('fields', $fields);
+    $event->setRelation('categories', $categories);
+
+    return view('participant.events.show', [
+        'event' => $event,
+        'registration' => null,
+        'preview' => true,
+    ]);
+}
+
+private function previewOptions(mixed $text): array
+{
+    return collect(preg_split('/\r\n|\r|\n/', is_string($text) ? $text : ''))
+        ->map(fn ($option) => trim($option))
+        ->filter()
+        ->values()
+        ->all();
+}
 
     public function update(Request $request, Event $event)
     {
