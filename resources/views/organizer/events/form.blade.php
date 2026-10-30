@@ -199,7 +199,12 @@
                                     class="px-3 py-1 border border-gray-800 text-sm rounded-md" x-text="'+ ' + item.label"></button>
                         </template>
                     </div>
+                    <p class="mt-3 text-xs text-gray-500">
+                        Section heading and Note only show text. People can type in Short answer, Paragraph, Number, and Date.
+                    </p>
                 </div>
+
+                
 
                 {{-- 4. Look and feel --}}
                 <div class="bg-white p-6 rounded shadow">
@@ -312,9 +317,11 @@
                                     <div :class="(block.type === 'section' || block.type === 'note' || block.width !== 'half') ? 'sm:col-span-2' : ''">
 
                                         <template x-if="block.type === 'section'">
-                                            <div class="pt-3 pb-2 border-b-2" :style="`border-color:${theme.primary}`">
-                                                <h5 class="text-lg font-semibold" x-text="block.label || 'Section heading'"></h5>
-                                                <p class="text-sm opacity-70 whitespace-pre-line" x-show="block.description" x-text="block.description"></p>
+                                            <div>
+                                                <div class="px-3 py-2 font-semibold"
+                                                    :style="`background:${theme.primary}; color:${textOn(theme.primary)}; border-radius:${radii[theme.radius]}`"
+                                                    x-text="block.label || 'Section heading'"></div>
+                                                <p class="mt-1 text-sm opacity-70 whitespace-pre-line" x-show="block.description" x-text="block.description"></p>
                                             </div>
                                         </template>
 

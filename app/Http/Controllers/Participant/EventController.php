@@ -13,54 +13,78 @@ use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
-   public function index(Request $request)
-{
-    $type = $request->query('type');
-    $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
+    private const ALREADY_REGISTERED = 'You are already registered for this event.';
+    private const EVENT_FULL = 'Sorry, this event is full.';
 
-    $upcoming = Event::whereDate('event_date', '>=', today());
+    public function index(Request $request)
+    {
+        $type = $request->query('type');
+        $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
 
-    // Number of events per type, shown in the menu
-    $counts = (clone $upcoming)
-        ->selectRaw('type, count(*) as total')
-        ->groupBy('type')
-        ->pluck('total', 'type');
+        $upcoming = Event::whereDate('event_date', '>=', today());
 
-    $events = $upcoming
-        ->withCount('registrations')
-        ->when($type, fn ($query) => $query->where('type', $type))
-        ->orderBy('event_date')
-        ->get();
+        $counts = (clone $upcoming)
+            ->selectRaw('type, count(*) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type');
 
-    $user = auth()->user();
+        $events = $upcoming
+            ->withCount('registrations')
+            ->when($type, fn ($query) => $query->where('type', $type))
+            ->orderBy('event_date')
+            ->get();
 
-    $myCount = $user->registrations()->count();
-    $registeredIds = $user->registrations()->pluck('event_id');
+        $user = auth()->user();
 
-    $nextRegistered = $user->registrations()
-        ->with('event')
-        ->whereHas('event', fn ($query) => $query->whereDate('event_date', '>=', today()))
-        ->get()
-        ->sortBy(fn ($registration) => $registration->event->event_date)
-        ->first();
+        $myCount = $user->registrations()->count();
+        $registeredIds = $user->registrations()->pluck('event_id');
 
-    return view('participant.dashboard', compact(
-        'events', 'type', 'counts', 'myCount', 'registeredIds', 'nextRegistered'
-    ));
-}
+        $nextRegistered = $user->registrations()
+            ->with('event')
+            ->whereHas('event', fn ($query) => $query->whereDate('event_date', '>=', today()))
+            ->get()
+            ->sortBy(fn ($registration) => $registration->event->event_date)
+            ->first();
 
+        return view('participant.dashboard', compact(
+            'events', 'type', 'counts', 'myCount', 'registeredIds', 'nextRegistered'
+        ));
+    }
+
+    // Event details page: thumbnail, description, when and where, and the Register button
     public function show(Event $event)
     {
+        $event->loadCount('registrations');
+
+        $registration = $event->registrations()->with('category')
+            ->where('user_id', auth()->id())->first();
+
+        return view('participant.events.show', compact('event', 'registration'));
+    }
+
+    // The separate page that shows only the organizer's form
+    public function registerForm(Event $event)
+    {
+        if ($event->registration_mode === 'external') {
+            return redirect()->route('participant.events.show', $event);
+        }
+
         $event->loadCount('registrations');
         $event->load([
             'fields',
             'categories' => fn ($query) => $query->withCount('registrations'),
         ]);
 
-        $registration = $event->registrations()->with('category')
-            ->where('user_id', auth()->id())->first();
+        $already = $event->registrations()->where('user_id', auth()->id())->exists();
 
-        return view('participant.events.show', compact('event', 'registration'));
+        if ($already || $event->registrations_count >= $event->total_slots) {
+            return redirect()->route('participant.events.show', $event);
+        }
+
+        return view('participant.events.register', [
+            'event' => $event,
+            'preview' => false,
+        ]);
     }
 
     public function register(Request $request, Event $event)
@@ -119,11 +143,11 @@ class EventController extends Controller
             $event = Event::whereKey($event->id)->lockForUpdate()->first();
 
             if ($event->registrations()->where('user_id', auth()->id())->exists()) {
-                return 'You are already registered for this event.';
+                return self::ALREADY_REGISTERED;
             }
 
             if ($event->registrations()->count() >= $event->total_slots) {
-                return 'Sorry, this event is full.';
+                return self::EVENT_FULL;
             }
 
             $category = null;
@@ -171,7 +195,11 @@ class EventController extends Controller
         });
 
         if ($error) {
-            return back()->withInput()->withErrors(['register' => $error]);
+            $response = in_array($error, [self::ALREADY_REGISTERED, self::EVENT_FULL], true)
+                ? redirect()->route('participant.events.show', $event)
+                : back()->withInput();
+
+            return $response->withErrors(['register' => $error]);
         }
 
         return redirect()->route('participant.registrations.index')
@@ -179,9 +207,21 @@ class EventController extends Controller
     }
 
     public function myRegistrations()
-    {
-        $registrations = auth()->user()->registrations()->with(['event', 'category'])->latest()->get();
+{
+    $registrations = auth()->user()->registrations()
+        ->with(['event', 'category'])
+        ->get();
 
-        return view('participant.registrations', compact('registrations'));
-    }
+    $upcoming = $registrations
+        ->filter(fn ($registration) => ! $registration->event->event_date->isBefore(today()))
+        ->sortBy(fn ($registration) => $registration->event->event_date)
+        ->values();
+
+    $past = $registrations
+        ->filter(fn ($registration) => $registration->event->event_date->isBefore(today()))
+        ->sortByDesc(fn ($registration) => $registration->event->event_date)
+        ->values();
+
+    return view('participant.registrations', compact('upcoming', 'past'));
+}
 }

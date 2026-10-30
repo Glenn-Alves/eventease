@@ -34,7 +34,7 @@ class FormDesignerController extends Controller
             'categories' => fn ($query) => $query->withCount('registrations'),
         ]);
 
-        return view('participant.events.show', [
+        return view('participant.events.register', [
             'event' => $event,
             'registration' => null,
             'preview' => true,
@@ -124,7 +124,7 @@ public function previewDraft(Request $request, Event $event)
     $event->setRelation('fields', $fields);
     $event->setRelation('categories', $categories);
 
-    return view('participant.events.show', [
+    return view('participant.events.register', [
         'event' => $event,
         'registration' => null,
         'preview' => true,

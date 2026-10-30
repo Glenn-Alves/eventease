@@ -34,6 +34,7 @@ Route::middleware(['auth', 'role:participant'])
         Route::get('/dashboard', [ParticipantEventController::class, 'index'])->name('dashboard');
         Route::get('/events', fn () => redirect()->route('participant.dashboard', request()->query()))->name('events.index');
         Route::get('/events/{event}', [ParticipantEventController::class, 'show'])->name('events.show');
+        Route::get('/events/{event}/register', [ParticipantEventController::class, 'registerForm'])->name('events.register.form');
         Route::post('/events/{event}/register', [ParticipantEventController::class, 'register'])->name('events.register');
         Route::get('/registrations', [ParticipantEventController::class, 'myRegistrations'])->name('registrations.index');
     });
