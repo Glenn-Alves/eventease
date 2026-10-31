@@ -13,10 +13,15 @@ class RoleMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+public function handle(Request $request, Closure $next, string $role): Response
 {
-    if ($request->user()?->role !== $role) {
-        abort(403, 'You are not allowed to open this page.');
+    $user = $request->user();
+
+    abort_unless($user && in_array($user->role, ['organizer', 'participant'], true), 403);
+
+    // Wrong account type: send the person to their own dashboard instead of an error page
+    if ($user->role !== $role) {
+        return redirect()->route($user->role === 'organizer' ? 'organizer.dashboard' : 'participant.dashboard');
     }
 
     return $next($request);

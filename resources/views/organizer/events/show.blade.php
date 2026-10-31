@@ -80,7 +80,7 @@
             </div>
 
             {{-- Categories --}}
-            @if ($event->categories->isNotEmpty())
+            @if ($event->supportsCategories() && $event->categories->isNotEmpty())
                 <div class="bg-white rounded shadow overflow-x-auto">
                     <h3 class="font-semibold text-lg px-6 pt-6">Categories</h3>
                     <table class="w-full text-left text-sm mt-3">
@@ -106,15 +106,26 @@
 
             {{-- Registered participants --}}
             <div class="bg-white rounded shadow overflow-x-auto">
-                <h3 class="font-semibold text-lg px-6 pt-6">Registered participants</h3>
+                <div class="flex flex-wrap items-center justify-between gap-3 px-6 pt-6">
+                    <h3 class="font-semibold text-lg">Registered participants</h3>
+
+                    @if ($event->registrations->isNotEmpty())
+                        <a href="{{ route('organizer.events.registrations.export', $event) }}"
+                           class="px-3 py-1 border border-gray-800 text-sm rounded-md">Download CSV</a>
+                    @endif
+                </div>
+
                 <table class="w-full text-left text-sm mt-3">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="p-3 ps-6">Name</th>
                             <th class="p-3">Email</th>
-                            <th class="p-3">Category</th>
+                            @if ($event->supportsCategories())
+                                <th class="p-3">Category</th>
+                            @endif
                             <th class="p-3">Ticket code</th>
-                            <th class="p-3 pe-6">Registered on</th>
+                            <th class="p-3">Registered on</th>
+                            <th class="p-3 pe-6">Answers</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,12 +133,18 @@
                             <tr class="border-t">
                                 <td class="p-3 ps-6">{{ $registration->user->name }}</td>
                                 <td class="p-3">{{ $registration->user->email }}</td>
-                                <td class="p-3">{{ $registration->category->name ?? '-' }}</td>
+                                @if ($event->supportsCategories())
+                                    <td class="p-3">{{ $registration->category->name ?? '-' }}</td>
+                                @endif
                                 <td class="p-3 font-mono">{{ $registration->ticket_code }}</td>
-                                <td class="p-3 pe-6">{{ $registration->created_at->format('M d, Y h:i A') }}</td>
+                                <td class="p-3">{{ $registration->created_at->format('M d, Y h:i A') }}</td>
+                                <td class="p-3 pe-6">
+                                    <a href="{{ route('organizer.events.registrations.show', [$event, $registration]) }}"
+                                       class="text-indigo-600 underline whitespace-nowrap">View answers</a>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="p-6 text-center text-gray-500">No one has registered yet.</td></tr>
+                            <tr><td colspan="{{ $event->supportsCategories() ? 6 : 5 }}" class="p-6 text-center text-gray-500">No one has registered yet.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

@@ -13,12 +13,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Event extends Model
 {
+
+    
     public const TYPES = [
         'concert' => 'Concert',
-        'funrun' => 'Fun Run',
+        'funrun' => 'Fun Run / Marathon',
         'festival' => 'Festival',
         'others' => 'Others',
     ];
+
+        // Event types that use categories such as 42K, 21K, and 10K
+    public const CATEGORY_TYPES = ['funrun'];
+
+        public function supportsCategories(): bool
+        {
+            return in_array($this->type, self::CATEGORY_TYPES, true);
+        }
 
     public const FONTS = [
         'sans' => 'ui-sans-serif, system-ui, sans-serif',

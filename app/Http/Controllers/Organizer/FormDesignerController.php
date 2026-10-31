@@ -214,7 +214,10 @@ private function previewOptions(mixed $text): array
         ]);
 
         if ($data['registration_mode'] === 'builtin') {
-            $this->syncCategories($event, $data['categories'] ?? []);
+            if ($event->supportsCategories()) {
+                $this->syncCategories($event, $data['categories'] ?? []);
+            }
+
             $this->syncBlocks($event, $data['blocks'] ?? []);
         }
 

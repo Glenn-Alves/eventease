@@ -112,7 +112,7 @@
             <div class="ee-grid">
 
                 {{-- Categories --}}
-                @if ($event->categories->isNotEmpty())
+                @if ($event->supportsCategories() && $event->categories->isNotEmpty())
                     <div class="ee-full">
                         <div class="ee-section">Choose your category</div>
 

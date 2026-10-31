@@ -1,18 +1,16 @@
 <?php
 
 use App\Http\Controllers\Organizer\DashboardController;
+use App\Http\Controllers\Organizer\RegistrationController;
 use App\Http\Controllers\Organizer\EventController;
 use App\Http\Controllers\Organizer\FormDesignerController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicEventController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
-
+Route::get('/', [PublicEventController::class, 'index'])->name('home');
+Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
 Route::get('/dashboard', function () {
     return auth()->user()->role === 'organizer'
         ? redirect()->route('organizer.dashboard')
@@ -27,6 +25,8 @@ Route::middleware(['auth', 'role:organizer'])
         Route::put('events/{event}/form', [FormDesignerController::class, 'update'])->name('events.form.update');
         Route::get('events/{event}/preview', [FormDesignerController::class, 'preview'])->name('events.preview');
         Route::put('events/{event}/preview', [FormDesignerController::class, 'previewDraft'])->name('events.preview.draft');
+        Route::get('events/{event}/registrations/export', [RegistrationController::class, 'export'])->name('events.registrations.export');
+Route::get('events/{event}/registrations/{registration}', [RegistrationController::class, 'show'])->name('events.registrations.show');
     });
 
 Route::middleware(['auth', 'role:participant'])

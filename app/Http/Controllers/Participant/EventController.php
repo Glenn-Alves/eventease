@@ -95,7 +95,7 @@ class EventController extends Controller
         $fields = $event->fields()->get()
             ->reject(fn ($field) => in_array($field->type, ['section', 'note']));
 
-        $categories = $event->categories()->get();
+        $categories = $event->supportsCategories() ? $event->categories()->get() : collect();
 
         $rules = [];
         $attributes = [];
@@ -136,7 +136,7 @@ class EventController extends Controller
         $request->validate($rules, [], $attributes);
 
         $answers = $request->input('answers', []);
-        $categoryId = $request->input('category_id');
+        $categoryId = $event->supportsCategories() ? $request->input('category_id') : null;
 
         $error = DB::transaction(function () use ($event, $fields, $answers, $categoryId) {
             // Lock rows so two people cannot take the last slot at the same time

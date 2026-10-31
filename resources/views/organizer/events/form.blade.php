@@ -1,5 +1,6 @@
 @php
-    $initialCategories = array_values(old('categories', $event->categories()->withCount('registrations')->get()->map(fn ($c) => [
+    $initialCategories = $event->supportsCategories()
+    ? array_values(old('categories', $event->categories()->withCount('registrations')->get()->map(fn ($c) => [
         'id' => $c->id,
         'name' => $c->name,
         'price' => $c->price,
@@ -7,7 +8,8 @@
         'inclusions' => $c->inclusions,
         'ends_at' => optional($c->registration_ends_at)->format('Y-m-d'),
         'locked' => $c->registrations_count > 0,
-    ])->all()));
+    ])->all()))
+    : [];
 
     $initialBlocks = array_values(old('blocks', $event->fields->map(fn ($f) => [
         'id' => $f->id,
@@ -80,6 +82,7 @@
             <div x-show="mode === 'builtin'" class="space-y-6">
 
                 {{-- 2. Categories --}}
+                @if ($event->supportsCategories())
                 <div class="bg-white p-6 rounded shadow">
                     <h3 class="font-semibold text-lg">Categories</h3>
                     <p class="text-sm text-gray-600">
@@ -125,6 +128,9 @@
                     <button type="button" x-on:click="addCategory()"
                             class="mt-4 px-4 py-2 border border-gray-800 text-sm rounded-md">+ Add Category</button>
                 </div>
+                        
+                @endif
+
 
                 {{-- 3. Form blocks (drag and drop) --}}
                 <div class="bg-white p-6 rounded shadow">
