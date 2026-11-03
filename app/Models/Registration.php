@@ -29,4 +29,10 @@ class Registration extends Model
     {
         return $this->hasMany(RegistrationAnswer::class);
     }
+
+    protected function casts(): array
+    {
+        return ['checked_in_at' => 'datetime'];
+    }
+    
 }

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Support\Qr;
 
 class EventController extends Controller
 {
@@ -202,8 +203,12 @@ class EventController extends Controller
             return $response->withErrors(['register' => $error]);
         }
 
-        return redirect()->route('participant.registrations.index')
-            ->with('status', 'Registration successful!');
+        $registration = Registration::where('user_id', auth()->id())
+        ->where('event_id', $event->id)
+        ->first();
+
+    return redirect()->route('participant.registrations.show', $registration)
+        ->with('status', 'Registration successful! Show this QR code at the entrance.');
     }
 
     public function myRegistrations()
@@ -224,4 +229,14 @@ class EventController extends Controller
 
     return view('participant.registrations', compact('upcoming', 'past'));
 }
+
+    public function ticket(Registration $registration)
+    {
+        abort_unless($registration->user_id === auth()->id(), 404);
+
+        $registration->load(['event', 'category']);
+        $qr = Qr::svg($registration->ticket_code, 260);
+
+        return view('participant.ticket', compact('registration', 'qr'));
+    }
 }

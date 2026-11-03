@@ -8,6 +8,7 @@ use App\Http\Controllers\Participant\EventController as ParticipantEventControll
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicEventController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Organizer\CheckInController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
@@ -26,7 +27,10 @@ Route::middleware(['auth', 'role:organizer'])
         Route::get('events/{event}/preview', [FormDesignerController::class, 'preview'])->name('events.preview');
         Route::put('events/{event}/preview', [FormDesignerController::class, 'previewDraft'])->name('events.preview.draft');
         Route::get('events/{event}/registrations/export', [RegistrationController::class, 'export'])->name('events.registrations.export');
-Route::get('events/{event}/registrations/{registration}', [RegistrationController::class, 'show'])->name('events.registrations.show');
+        Route::get('events/{event}/registrations/{registration}', [RegistrationController::class, 'show'])->name('events.registrations.show');
+        Route::get('events/{event}/check-in', [CheckInController::class, 'show'])->name('events.checkin.show');
+        Route::post('events/{event}/check-in', [CheckInController::class, 'store'])->name('events.checkin.store');
+        Route::post('events/{event}/check-in/undo', [CheckInController::class, 'undo'])->name('events.checkin.undo');
     });
 
 Route::middleware(['auth', 'role:participant'])
@@ -37,6 +41,7 @@ Route::middleware(['auth', 'role:participant'])
         Route::get('/events/{event}/register', [ParticipantEventController::class, 'registerForm'])->name('events.register.form');
         Route::post('/events/{event}/register', [ParticipantEventController::class, 'register'])->name('events.register');
         Route::get('/registrations', [ParticipantEventController::class, 'myRegistrations'])->name('registrations.index');
+        Route::get('/registrations/{registration}', [ParticipantEventController::class, 'ticket'])->name('registrations.show');
     });
 
 Route::middleware('auth')->group(function () {

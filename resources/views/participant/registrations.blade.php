@@ -115,10 +115,16 @@
                                         Registered {{ $registration->created_at->format('M d, Y') }}
                                     </p>
 
-                                    <a href="{{ route('participant.events.show', $event) }}"
-                                       class="mt-auto pt-4 block">
-                                        <span class="block text-center px-3 py-2 bg-gray-800 text-white text-sm rounded-md">View event</span>
-                                    </a>
+                                    @if ($registration->checked_in_at)
+                                        <p class="mt-1 text-xs font-medium text-green-700">Checked in {{ $registration->checked_in_at->format('M d, h:i A') }}</p>
+                                    @endif
+
+                                    <div class="mt-auto pt-4 flex gap-2">
+                                        <a href="{{ route('participant.registrations.show', $registration) }}"
+                                        class="flex-1 text-center px-3 py-2 bg-gray-800 text-white text-sm rounded-md">View ticket</a>
+                                        <a href="{{ route('participant.events.show', $event) }}"
+                                        class="flex-1 text-center px-3 py-2 border border-gray-800 text-sm rounded-md">View event</a>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

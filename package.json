@@ -19,6 +19,7 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "@alpinejs/sort": "^3.17.5"
+        "@alpinejs/sort": "^3.17.5",
+        "jsqr": "^1.4.0"
     }
 }

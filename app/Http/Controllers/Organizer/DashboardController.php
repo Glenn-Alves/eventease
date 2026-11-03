@@ -25,6 +25,13 @@ class DashboardController extends Controller
             fn ($query) => $query->where('user_id', auth()->id())
         )->count();
 
+        $checkedIn = Registration::whereHas(
+            'event',
+            fn ($query) => $query->where('user_id', auth()->id())
+        )->whereNotNull('checked_in_at')->count();
+
+        
+
         // Slots left only make sense for events that use the EventEase form
         $slotsLeft = $upcoming
             ->where('registration_mode', 'builtin')
@@ -40,6 +47,7 @@ class DashboardController extends Controller
             'totalEvents' => $totalEvents,
             'upcomingCount' => $upcoming->count(),
             'totalRegistrations' => $totalRegistrations,
+            'checkedIn' => $checkedIn,
             'slotsLeft' => $slotsLeft,
             'nextEvents' => $upcoming->take(5),
             'recent' => $recent,

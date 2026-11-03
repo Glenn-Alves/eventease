@@ -25,6 +25,10 @@
                 <p class="text-3xl font-bold">{{ $totalRegistrations }}</p>
             </div>
             <div class="bg-white p-5 rounded shadow">
+                <p class="text-sm text-gray-500">Checked in</p>
+                <p class="text-3xl font-bold">{{ $checkedIn }}</p>
+            </div>
+            <div class="bg-white p-5 rounded shadow">
                 <p class="text-sm text-gray-500">Slots left (upcoming)</p>
                 <p class="text-3xl font-bold">{{ $slotsLeft }}</p>
             </div>
