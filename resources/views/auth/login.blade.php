@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet">
-
+    @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -25,7 +25,9 @@
 
         {{-- Login Card --}}
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm px-7 py-10 sm:px-10 sm:py-10">
-
+            <a href="{{ route('home') }}" class="flex justify-center mb-4" aria-label="EventEase home">
+                <x-application-logo class="h-14 w-auto text-slate-900" />
+            </a>
             {{-- Heading --}}
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-slate-900">

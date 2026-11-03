@@ -10,7 +10,7 @@
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet">
-
+    @include('partials.favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -36,23 +36,7 @@
                    class="inline-flex items-center justify-center mb-4"
                    aria-label="EventEase home">
 
-                    <svg class="w-12 h-12 text-slate-800"
-                         viewBox="0 0 48 48"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.6"
-                         stroke-linecap="round"
-                         stroke-linejoin="round"
-                         aria-hidden="true">
-
-                        <path d="M8 13 20 6 32 13 20 20 8 13Z"/>
-                        <path d="M8 13V34L20 42V20"/>
-                        <path d="M20 42 32 35V13"/>
-                        <path d="M20 27 32 20"/>
-                        <path d="M27 23 39 16 44 19V30L32 37"/>
-                        <path d="M39 16V27"/>
-                        <path d="M27 23V34"/>
-                    </svg>
+                    <x-application-logo class="h-14 w-auto text-slate-900" />
 
                 </a>
 

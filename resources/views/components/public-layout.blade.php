@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? config('app.name', 'EventEase') }}</title>
-
+    @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet">
 
@@ -16,7 +16,10 @@
 
     <header class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <a href="{{ route('home') }}" class="text-xl font-bold text-slate-900">EventEase</a>
+            <a href="{{ route('home') }}" class="flex items-center gap-2">
+                <x-application-logo class="block h-9 w-auto text-slate-900" />
+                <span class="font-serif text-xl font-bold tracking-wide text-slate-900">EventEase</span>
+            </a>
 
             <div class="flex items-center gap-3 text-sm">
                 @auth
