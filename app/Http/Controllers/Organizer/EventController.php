@@ -94,7 +94,11 @@ public function show(Event $event)
     {
         $this->checkOwner($event);
         $this->deleteThumbnail($event);
+        foreach ($event->galleryItems as $item) {
+            Storage::disk('public')->delete($item->path);
+        }
         $event->delete();
+        
 
         return redirect()->route('organizer.events.index')->with('status', 'Event deleted.');
     }
@@ -113,6 +117,9 @@ public function show(Event $event)
 
     private function validated(Request $request): array
     {
+        // The deadline cannot be later than the moment the event starts
+        $start = trim($request->input('event_date').' '.$request->input('event_time'));
+
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::in(array_keys(Event::TYPES))],
@@ -121,11 +128,13 @@ public function show(Event $event)
             'description' => ['required', 'string'],
             'event_date' => ['required', 'date'],
             'event_time' => ['required', 'date_format:H:i'],
+            'registration_deadline' => ['nullable', 'date', 'before_or_equal:'.$start],
             'location' => ['required', 'string', 'max:255'],
             'total_slots' => ['required', 'integer', 'min:1'],
         ], [
             'thumbnail.image' => 'The thumbnail must be an image.',
             'thumbnail.max' => 'The thumbnail must be 2 MB or smaller.',
+            'registration_deadline.before_or_equal' => 'The registration deadline must be before the event starts.',
         ]);
     }
 }

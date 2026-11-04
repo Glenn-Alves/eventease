@@ -19,9 +19,48 @@
 
             {{-- Event details --}}
             <div class="bg-white rounded shadow overflow-hidden">
+                
+            
                 @if ($event->thumbnailUrl())
-                    <img src="{{ $event->thumbnailUrl() }}" alt="{{ $event->title }}" class="w-full max-h-80 object-cover">
+                    <div style="position: relative; width: 100%; overflow: hidden;">
+
+                        <img
+                            src="{{ $event->thumbnailUrl() }}"
+                            alt="{{ $event->title }}"
+                            style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;"
+                        >
+
+                        <div
+                            style="
+                                position: absolute;
+                                top: 10px;
+                                right: 10px;
+                                z-index: 999;
+                                transform: scale(0.6);
+                                transform-origin: top right;
+                                transition: opacity 0.3s ease;
+                            "
+                            onmouseover="this.style.opacity='0.3'"
+                            onmouseout="this.style.opacity='1'"
+                        >
+                            <x-countdown
+                                :to="$event->startsAt()->toIso8601String()"
+                                label="Starts in"
+                                done-text="Started"
+                            />
+                        </div>
+
+                    </div>
+                @else
+                    <div class="p-6">
+                        <x-countdown
+                            :to="$event->startsAt()->toIso8601String()"
+                            label="Event starts in"
+                            done-text="The event has started"
+                        />
+                    </div>
                 @endif
+
 
                 <div class="p-6">
                     <span class="inline-block text-xs px-2 py-1 bg-gray-100 rounded">
@@ -38,7 +77,18 @@
                             <strong>Registration:</strong>
                             {{ $external ? 'Your own form link' : 'EventEase form' }}
                         </div>
+                        <div>
+                            <strong>Registration deadline:</strong>
+                            @if ($event->registration_deadline)
+                                {{ $event->registration_deadline->format('F d, Y h:i A') }}
+                            @else
+                                None (closes when the event starts)
+                            @endif
+                            | {{ $event->closesInLabel() }}
+                        </div>
                     </dl>
+
+                    
 
                     <div class="mt-6 flex flex-wrap gap-3 text-sm">
                         <a href="{{ route('organizer.events.form.edit', $event) }}"
@@ -51,6 +101,9 @@
                         class="px-4 py-2 border border-gray-800 rounded-md">Preview form</a>
                         <a href="{{ route('organizer.events.edit', $event) }}"
                         class="px-4 py-2 border border-gray-800 rounded-md">Edit details</a>
+
+                        <a href="{{ route('organizer.events.gallery.edit', $event) }}"
+                            class="px-4 py-2 border border-gray-800 rounded-md">Gallery ({{ $event->galleryItems->count() }})</a>
 
                         <form method="POST" action="{{ route('organizer.events.destroy', $event) }}"
                             onsubmit="return confirm('Delete this event? All registrations for it will be deleted too.')">

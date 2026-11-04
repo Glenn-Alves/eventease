@@ -38,6 +38,8 @@
                     {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}
                 </p>
                 <p class="text-sm text-gray-600">{{ $event->location }}</p>
+                <x-countdown class="mt-4" :to="$event->startsAt()->toIso8601String()"
+             label="Event starts in" done-text="The event has started" />
             </div>
 
             {{-- Ticket tear line --}}

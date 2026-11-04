@@ -1,6 +1,7 @@
 @php
     $left = $event->total_slots - $event->registrations_count;
     $isExternal = $event->registration_mode === 'external';
+    $open = $event->isRegistrationOpen();
 
     // Both pages need a login, so a visitor who is not logged in is sent to the login page first
     $registerUrl = $isExternal
@@ -14,9 +15,39 @@
         <a href="{{ route('home') }}" class="text-sm underline text-gray-600">&larr; All events</a>
 
         <div class="mt-4 bg-white rounded-xl shadow overflow-hidden">
+            
             @if ($event->thumbnailUrl())
-                <img src="{{ $event->thumbnailUrl() }}" alt="{{ $event->title }}" class="w-full aspect-video object-cover">
+                <div style="position: relative; width: 100%; overflow: hidden;">
+
+                    <img
+                        src="{{ $event->thumbnailUrl() }}"
+                        alt="{{ $event->title }}"
+                        style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;"
+                    >
+
+                    <div
+                        style="
+                            position: absolute;
+                            top: 10px;
+                            right: 10px;
+                            z-index: 999;
+                            transform: scale(0.6);
+                            transform-origin: top right;
+                            transition: opacity 0.3s ease;
+                        "
+                        onmouseover="this.style.opacity='0.3'"
+                        onmouseout="this.style.opacity='1'"
+                    >
+                        <x-countdown
+                            :to="$event->startsAt()->toIso8601String()"
+                            label="Starts in"
+                            done-text="Started"
+                        />
+                    </div>
+
+                </div>
             @endif
+
 
             <div class="p-6">
                 <span class="inline-block text-xs px-2 py-1 bg-gray-100 rounded">
@@ -34,11 +65,35 @@
                     @unless ($isExternal)
                         <div><strong>Available slots:</strong> {{ max($left, 0) }} of {{ $event->total_slots }}</div>
                     @endunless
+                    <div>
+                        <strong>Registration:</strong>
+                        @if ($event->registration_deadline)
+                            {{ $open ? 'closes' : 'closed' }} {{ $event->registration_deadline->format('F d, Y h:i A') }}
+                        @else
+                            open until the event starts
+                        @endif
+                    </div>
                 </dl>
+
+                @if (! $event->thumbnailUrl() || ($event->registration_deadline && $open))
+                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                        @unless ($event->thumbnailUrl())
+                            <x-countdown :to="$event->startsAt()->toIso8601String()"
+                                        label="Event starts in" done-text="The event has started" />
+                        @endunless
+
+                        @if ($event->registration_deadline && $open)
+                            <x-countdown :to="$event->registration_deadline->toIso8601String()"
+                                        label="Registration closes in" done-text="Registration closed" />
+                        @endif
+                    </div>
+                @endif
 
                 <div class="mt-6">
                     @guest
-                        @if (! $isExternal && $left <= 0)
+                        @if (! $open)
+                            <p class="font-medium text-red-600">Registration is closed.</p>
+                        @elseif (! $isExternal && $left <= 0)
                             <p class="text-red-600">This event is full.</p>
                         @else
                             <a href="{{ $registerUrl }}"
@@ -62,5 +117,6 @@
                 </div>
             </div>
         </div>
+        <x-event-gallery :event="$event" class="mt-6" />
     </div>
 </x-public-layout>

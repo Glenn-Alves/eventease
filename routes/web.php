@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicEventController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Organizer\CheckInController;
+use App\Http\Controllers\Organizer\GalleryController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
@@ -31,6 +32,11 @@ Route::middleware(['auth', 'role:organizer'])
         Route::get('events/{event}/check-in', [CheckInController::class, 'show'])->name('events.checkin.show');
         Route::post('events/{event}/check-in', [CheckInController::class, 'store'])->name('events.checkin.store');
         Route::post('events/{event}/check-in/undo', [CheckInController::class, 'undo'])->name('events.checkin.undo');
+        Route::get('events/{event}/gallery', [GalleryController::class, 'edit'])->name('events.gallery.edit');
+Route::post('events/{event}/gallery', [GalleryController::class, 'store'])->name('events.gallery.store');
+Route::post('events/{event}/gallery/reorder', [GalleryController::class, 'reorder'])->name('events.gallery.reorder');
+Route::patch('events/{event}/gallery/{item}', [GalleryController::class, 'update'])->name('events.gallery.update');
+Route::delete('events/{event}/gallery/{item}', [GalleryController::class, 'destroy'])->name('events.gallery.destroy');
     });
 
 Route::middleware(['auth', 'role:participant'])

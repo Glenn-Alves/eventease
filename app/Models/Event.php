@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 #[Fillable([
     'user_id', 'title', 'type', 'thumbnail', 'description', 'event_date', 'event_time',
-    'location', 'total_slots', 'registration_mode', 'external_form_url', 'form_theme',
+    'location', 'total_slots', 'registration_mode', 'external_form_url', 'form_theme', 'registration_deadline',
 ])]
 class Event extends Model
 {
@@ -61,6 +62,8 @@ class Event extends Model
         return [
             'event_date' => 'date',
             'form_theme' => 'array',
+            'registration_deadline' => 'datetime',
+            
         ];
     }
 
@@ -116,4 +119,57 @@ class Event extends Model
     {
         return $this->hasMany(EventCategory::class)->orderBy('position');
     }
+    public function startsAt(): Carbon
+{
+    return Carbon::parse($this->event_date->format('Y-m-d').' '.$this->event_time);
+}
+
+// Registration closes at the deadline, or when the event starts if there is no deadline
+public function registrationClosesAt(): Carbon
+{
+    return $this->registration_deadline ?? $this->startsAt();
+}
+
+public function isRegistrationOpen(): bool
+{
+    return now()->lt($this->registrationClosesAt());
+}
+
+public function startsInLabel(): string
+{
+    $seconds = $this->startsAt()->getTimestamp() - now()->getTimestamp();
+
+    return $seconds <= 0 ? 'Started' : 'Starts in '.self::shortDuration($seconds);
+}
+
+public function closesInLabel(): string
+{
+    $seconds = $this->registrationClosesAt()->getTimestamp() - now()->getTimestamp();
+
+    return $seconds <= 0 ? 'Registration closed' : 'Registration closes in '.self::shortDuration($seconds);
+}
+
+private static function shortDuration(int $seconds): string
+{
+    if ($seconds < 3600) {
+        $minutes = max(1, intdiv($seconds, 60));
+
+        return $minutes.' '.($minutes === 1 ? 'minute' : 'minutes');
+    }
+
+    if ($seconds < 86400) {
+        $hours = intdiv($seconds, 3600);
+
+        return $hours.' '.($hours === 1 ? 'hour' : 'hours');
+    }
+
+    $days = intdiv($seconds, 86400);
+
+    return $days.' '.($days === 1 ? 'day' : 'days');
+}
+
+public function galleryItems(): HasMany
+{
+    return $this->hasMany(EventGalleryItem::class)->orderBy('position')->orderBy('id');
+}
 }

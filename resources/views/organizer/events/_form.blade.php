@@ -53,6 +53,38 @@
     <x-text-input id="event_time" name="event_time" type="time" class="block mt-1 w-full" :value="old('event_time', isset($event) ? substr($event->event_time, 0, 5) : '')" required />
     <x-input-error :messages="$errors->get('event_time')" class="mt-2" />
 </div>
+@php
+    $deadlineValue = old('registration_deadline', isset($event) && $event->registration_deadline
+        ? $event->registration_deadline->format('Y-m-d\TH:i')
+        : '');
+@endphp
+
+<div class="mt-4" x-data="{
+        value: @js($deadlineValue),
+        shift(days) {
+            const base = this.value ? new Date(this.value) : new Date();
+            base.setDate(base.getDate() + days);
+            const pad = (n) => String(n).padStart(2, '0');
+            this.value = base.getFullYear() + '-' + pad(base.getMonth() + 1) + '-' + pad(base.getDate())
+                + 'T' + pad(base.getHours()) + ':' + pad(base.getMinutes());
+        }
+    }">
+    <x-input-label for="registration_deadline" value="Registration deadline (optional)" />
+    <x-text-input id="registration_deadline" name="registration_deadline" type="datetime-local"
+                  class="block mt-1 w-full" value="{{ $deadlineValue }}" x-model="value" />
+
+    <div class="mt-2 flex flex-wrap gap-2 text-xs">
+        <button type="button" x-on:click="shift(1)" class="px-2 py-1 border border-gray-300 rounded">+1 day</button>
+        <button type="button" x-on:click="shift(7)" class="px-2 py-1 border border-gray-300 rounded">+1 week</button>
+        <button type="button" x-on:click="value = ''" class="px-2 py-1 border border-gray-300 rounded">Remove deadline</button>
+    </div>
+
+    <p class="text-xs text-gray-500 mt-1">
+        Leave it empty to keep registration open until the event starts.
+        You can change it later, for example to extend registration.
+    </p>
+    <x-input-error :messages="$errors->get('registration_deadline')" class="mt-2" />
+</div>
 
 <div class="mt-4">
     <x-input-label for="location" value="Location" />

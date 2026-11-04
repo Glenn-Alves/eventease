@@ -43,6 +43,7 @@
                                 {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}
                             </p>
                             <p class="text-sm text-gray-600">{{ $event->location }}</p>
+                            <p class="mt-1 text-xs font-medium text-indigo-600">{{ $event->startsInLabel() }}</p>
 
                             <div class="mt-3">
                                 @if ($event->registration_mode === 'external')

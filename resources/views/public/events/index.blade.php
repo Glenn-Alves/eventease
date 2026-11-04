@@ -34,13 +34,21 @@
                             </p>
                             <p class="text-sm text-gray-600">{{ $event->location }}</p>
 
-                            @if ($event->registration_mode === 'external')
-                                <p class="mt-2 text-sm text-gray-500">Registration on the organizer's own form</p>
-                            @else
-                                <p class="mt-2 text-sm {{ $left > 0 ? 'text-green-700' : 'text-red-600' }}">
-                                    {{ $left > 0 ? $left.' slots left' : 'Full' }}
-                                </p>
-                            @endif
+                            <p class="mt-1 text-xs font-medium text-indigo-600">{{ $event->startsInLabel() }}</p>
+
+                                @if ($event->registration_deadline && $event->isRegistrationOpen())
+                                    <p class="text-xs text-gray-500">{{ $event->closesInLabel() }}</p>
+                                @endif
+
+                                @if (! $event->isRegistrationOpen())
+                                    <p class="mt-2 text-sm text-red-600">Registration closed</p>
+                                @elseif ($event->registration_mode === 'external')
+                                    <p class="mt-2 text-sm text-gray-500">Registration on the organizer's own form</p>
+                                @else
+                                    <p class="mt-2 text-sm {{ $left > 0 ? 'text-green-700' : 'text-red-600' }}">
+                                        {{ $left > 0 ? $left.' slots left' : 'Full' }}
+                                    </p>
+                                @endif
 
                             <a href="{{ route('events.show', $event) }}" class="mt-auto pt-4 block">
                                 <span class="block text-center px-4 py-2 bg-gray-800 text-white text-sm rounded-md">View</span>

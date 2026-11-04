@@ -78,7 +78,7 @@ class EventController extends Controller
 
         $already = $event->registrations()->where('user_id', auth()->id())->exists();
 
-        if ($already || $event->registrations_count >= $event->total_slots) {
+        if ($already || ! $event->isRegistrationOpen() || $event->registrations_count >= $event->total_slots) {
             return redirect()->route('participant.events.show', $event);
         }
 
@@ -91,6 +91,10 @@ class EventController extends Controller
     public function register(Request $request, Event $event)
     {
         abort_if($event->registration_mode === 'external', 403, 'This event uses an external registration form.');
+                if (! $event->isRegistrationOpen()) {
+            return redirect()->route('participant.events.show', $event)
+                ->withErrors(['register' => 'Registration for this event is closed.']);
+        }
 
         // Section headings and notes are not questions
         $fields = $event->fields()->get()

@@ -94,6 +94,9 @@
             @if ($theme['intro'])
                 <p class="ee-intro">{{ $theme['intro'] }}</p>
             @endif
+            @if ($event->registration_deadline)
+                <p class="ee-as">Registration closes {{ $event->registration_deadline->format('F d, Y h:i A') }}.</p>
+            @endif
 
             @if ($errors->has('register'))
                 <div class="ee-alert">{{ $errors->first('register') }}</div>
