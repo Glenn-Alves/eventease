@@ -37,15 +37,22 @@
                     </div>
                     <canvas x-ref="canvas" class="hidden"></canvas>
 
-                    <div class="flex flex-wrap gap-3 mt-3">
+                    <div class="mt-3 flex flex-wrap gap-3">
                         <button type="button" x-show="!scanning" x-on:click="startCamera()"
-                                class="px-4 py-2 bg-gray-800 text-white text-sm rounded-md">Start camera</button>
+                                class="tap inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700">
+                            <x-icon name="qr" class="h-5 w-5" /> Start camera
+                        </button>
                         <button type="button" x-show="scanning" style="display: none;" x-on:click="stopCamera()"
-                                class="px-4 py-2 border border-gray-800 text-sm rounded-md">Stop camera</button>
+                                class="tap inline-flex items-center gap-2 rounded-md border border-slate-900 px-4 py-2.5 text-sm font-semibold">
+                            <x-icon name="close" class="h-5 w-5" /> Stop camera
+                        </button>
 
-                        <button type="button" x-on:click="toggleSound()"
-                                class="ms-auto px-3 py-2 border border-gray-300 text-sm rounded-md"
-                                x-text="soundOn ? 'Sound on' : 'Sound off'"></button>
+                        <button type="button" x-on:click="toggleSound()" :aria-pressed="soundOn.toString()"
+                                class="tap ms-auto inline-flex items-center gap-2 rounded-md border border-gray-500 px-3 py-2.5 text-sm">
+                            <x-icon name="sound" x-show="soundOn" class="h-5 w-5" />
+                            <x-icon name="sound-off" x-show="!soundOn" style="display: none;" class="h-5 w-5" />
+                            <span x-text="soundOn ? 'Sound on' : 'Sound off'"></span>
+                        </button>
                     </div>
 
                     <p class="mt-2 text-sm text-red-600" x-show="cameraError" style="display: none;" x-text="cameraError"></p>
@@ -97,15 +104,23 @@
                                     <td class="py-2 pe-2 font-mono text-xs" x-text="row.code"></td>
                                     <td class="py-2 pe-2">
                                         <span x-show="row.at" style="display: none;"
-                                              class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded whitespace-nowrap"
-                                              x-text="row.at"></span>
-                                        <span x-show="!row.at" class="text-xs text-gray-400">Not yet</span>
+                                            class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-900 ring-1 ring-inset ring-green-700/30">
+                                            <x-icon name="check" class="h-3.5 w-3.5" />
+                                            <span x-text="row.at"></span>
+                                        </span>
+                                        <span x-show="!row.at" class="inline-flex items-center gap-1 text-xs text-gray-700">
+                                            <x-icon name="clock" class="h-3.5 w-3.5" /> Not yet
+                                        </span>
                                     </td>
                                     <td class="py-2 text-right whitespace-nowrap">
                                         <button type="button" x-show="!row.at" x-on:click="send(row.code)"
-                                                class="text-xs text-indigo-600 underline">Check in</button>
+                                                class="tap inline-flex items-center gap-1 rounded-md border border-indigo-700 px-3 py-1.5 text-xs font-medium text-indigo-800 hover:bg-indigo-50">
+                                            <x-icon name="tick" class="h-4 w-4" /> Check in
+                                        </button>
                                         <button type="button" x-show="row.at" style="display: none;" x-on:click="undo(row)"
-                                                class="text-xs text-red-600 underline">Undo</button>
+                                                class="tap inline-flex items-center gap-1 rounded-md border border-red-700 px-3 py-1.5 text-xs font-medium text-red-800 hover:bg-red-50">
+                                            <x-icon name="undo" class="h-4 w-4" /> Undo
+                                        </button>
                                     </td>
                                 </tr>
                             </template>

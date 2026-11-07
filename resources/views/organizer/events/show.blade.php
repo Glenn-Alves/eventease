@@ -13,9 +13,7 @@
 
         <div class="py-12 max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            @if (session('status'))
-                <div class="p-3 bg-green-100 text-green-800 rounded">{{ session('status') }}</div>
-            @endif
+            <x-flash class="mb-4" />
 
             {{-- Event details --}}
             <div class="bg-white rounded shadow overflow-hidden">
@@ -50,7 +48,7 @@
                             />
                         </div>
 
-                    </div>
+                    </div>  
                 @else
                     <div class="p-6">
                         <x-countdown
@@ -90,26 +88,24 @@
 
                     
 
-                    <div class="mt-6 flex flex-wrap gap-3 text-sm">
-                        <a href="{{ route('organizer.events.form.edit', $event) }}"
-                        class="px-4 py-2 bg-gray-800 text-white rounded-md">Design registration form</a>
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
                         @unless ($external)
-                            <a href="{{ route('organizer.events.checkin.show', $event) }}"
-                            class="px-4 py-2 bg-emerald-600 text-white rounded-md">Check-in</a>
+                            <x-action :href="route('organizer.events.checkin.show', $event)" icon="qr" variant="primary">Check-in</x-action>
                         @endunless
-                        <a href="{{ route('organizer.events.preview', $event) }}" target="_blank"
-                        class="px-4 py-2 border border-gray-800 rounded-md">Preview form</a>
-                        <a href="{{ route('organizer.events.edit', $event) }}"
-                        class="px-4 py-2 border border-gray-800 rounded-md">Edit details</a>
 
-                        <a href="{{ route('organizer.events.gallery.edit', $event) }}"
-                            class="px-4 py-2 border border-gray-800 rounded-md">Gallery ({{ $event->galleryItems->count() }})</a>
+                        <x-action :href="route('organizer.events.form.edit', $event)" icon="document"
+                                :variant="$external ? 'primary' : 'secondary'">Design registration form</x-action>
+                        <x-action :href="route('organizer.events.gallery.edit', $event)" icon="photo">
+                            Gallery ({{ $event->galleryItems->count() }})
+                        </x-action>
+                        <x-action :href="route('organizer.events.preview', $event)" icon="eye" target="_blank">Preview form</x-action>
+                        <x-action :href="route('organizer.events.edit', $event)" icon="edit">Edit details</x-action>
 
-                        <form method="POST" action="{{ route('organizer.events.destroy', $event) }}"
+                        <form method="POST" action="{{ route('organizer.events.destroy', $event) }}" class="sm:ms-auto"
                             onsubmit="return confirm('Delete this event? All registrations for it will be deleted too.')">
                             @csrf
                             @method('DELETE')
-                            <button class="px-4 py-2 border border-red-600 text-red-600 rounded-md">Delete</button>
+                            <x-action type="submit" icon="trash" variant="danger">Delete event</x-action>
                         </form>
                     </div>
                 </div>

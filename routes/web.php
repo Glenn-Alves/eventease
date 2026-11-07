@@ -13,10 +13,13 @@ use App\Http\Controllers\Organizer\GalleryController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
+
 Route::get('/dashboard', function () {
-    return auth()->user()->role === 'organizer'
-        ? redirect()->route('organizer.dashboard')
-        : redirect()->route('participant.dashboard');
+    if (auth()->user()->role === 'organizer') {
+        return app(DashboardController::class)->index();
+    }
+
+    return redirect()->route('participant.dashboard');
 })->middleware('auth')->name('dashboard');
 
 Route::middleware(['auth', 'role:organizer'])

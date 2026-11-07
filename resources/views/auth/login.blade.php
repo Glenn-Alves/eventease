@@ -96,7 +96,7 @@
             <div class="flex items-center gap-4 mb-6">
                 <div class="flex-1 border-t border-gray-200"></div>
 
-                <span class="text-xs text-gray-400 whitespace-nowrap">
+                <span class="text-xs text-gray-600 whitespace-nowrap">
                     or continue with email
                 </span>
 
@@ -123,7 +123,7 @@
                         autofocus
                         autocomplete="username"
                         class="w-full h-12 px-4 border border-gray-300 rounded-lg
-                               text-sm text-gray-800 placeholder-gray-400
+                               text-sm text-gray-800 placeholder-gray-600
                                focus:border-slate-700 focus:ring-2 focus:ring-slate-200
                                outline-none transition"
                     >
@@ -157,7 +157,7 @@
                             required
                             autocomplete="current-password"
                             class="w-full h-12 px-4 pr-12 border border-gray-300 rounded-lg
-                                   text-sm text-gray-800 placeholder-gray-400
+                                   text-sm text-gray-800 placeholder-gray-600
                                    focus:border-slate-700 focus:ring-2 focus:ring-slate-200
                                    outline-none transition"
                         >

@@ -9,11 +9,7 @@
 
     <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
 
-        @if (session('status'))
-            <div class="p-4 bg-green-100 text-green-800 rounded-lg">
-                <strong>{{ session('status') }}</strong> Your ticket is below.
-            </div>
-        @endif
+        <x-flash class="mb-4" />
 
         @if ($upcoming->isEmpty() && $past->isEmpty())
             <div class="bg-white rounded-xl shadow p-10 text-center">

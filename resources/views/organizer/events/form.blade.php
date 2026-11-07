@@ -34,9 +34,7 @@
 
     <div class="py-12 max-w-4xl mx-auto sm:px-6 lg:px-8">
 
-        @if (session('status'))
-            <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('status') }}</div>
-        @endif
+       <x-flash class="mb-4" />
 
         @if ($errors->any())
             <div class="mb-4 p-3 bg-red-100 text-red-800 rounded text-sm">

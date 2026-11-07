@@ -10,68 +10,76 @@
 @endphp
 
 <x-public-layout :title="$event->title.' | EventEase'">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
 
-        <a href="{{ route('home') }}" class="text-sm underline text-gray-600">&larr; All events</a>
+        <a href="{{ route('home') }}" class="tap inline-flex items-center gap-1.5 text-sm text-gray-800 underline">
+            <x-icon name="back" class="h-4 w-4" /> All events
+        </a>
 
-        <div class="mt-4 bg-white rounded-xl shadow overflow-hidden">
-            
+        <x-stepper :current="1" />
+
+        <div class="overflow-hidden rounded-xl bg-white shadow">
+
             @if ($event->thumbnailUrl())
-                <div style="position: relative; width: 100%; overflow: hidden;">
+                <div class="relative">
+                    <img src="{{ $event->thumbnailUrl() }}" alt="Poster of {{ $event->title }}" class="aspect-video w-full object-cover">
 
-                    <img
-                        src="{{ $event->thumbnailUrl() }}"
-                        alt="{{ $event->title }}"
-                        style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;"
-                    >
-
-                    <div
-                        style="
-                            position: absolute;
-                            top: 10px;
-                            right: 10px;
-                            z-index: 999;
-                            transform: scale(0.6);
-                            transform-origin: top right;
-                            transition: opacity 0.3s ease;
-                        "
-                        onmouseover="this.style.opacity='0.3'"
-                        onmouseout="this.style.opacity='1'"
-                    >
-                        <x-countdown
-                            :to="$event->startsAt()->toIso8601String()"
-                            label="Starts in"
-                            done-text="Started"
-                        />
-                    </div>
-
+                    <x-countdown overlay class="absolute right-3 top-3" :to="$event->startsAt()->toIso8601String()"
+                                 label="Starts in" done-text="Started" />
                 </div>
             @endif
 
-
             <div class="p-6">
-                <span class="inline-block text-xs px-2 py-1 bg-gray-100 rounded">
-                    {{ \App\Models\Event::TYPES[$event->type] ?? 'Others' }}
-                </span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <x-badge>{{ \App\Models\Event::TYPES[$event->type] ?? 'Others' }}</x-badge>
+                    <x-event-status :event="$event" />
+                </div>
 
-                <h1 class="mt-2 text-2xl font-bold text-slate-900">{{ $event->title }}</h1>
+                <h1 class="mt-3 text-2xl font-bold text-slate-900">{{ $event->title }}</h1>
 
-                <p class="mt-3 text-gray-700 whitespace-pre-line">{{ $event->description }}</p>
+                <p class="mt-3 whitespace-pre-line text-gray-800">{{ $event->description }}</p>
 
-                <dl class="mt-4 text-sm space-y-1">
-                    <div><strong>Date:</strong> {{ $event->event_date->format('F d, Y') }}</div>
-                    <div><strong>Time:</strong> {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}</div>
-                    <div><strong>Location:</strong> {{ $event->location }}</div>
+                <dl class="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+                    <div class="flex items-start gap-3">
+                        <x-icon name="calendar" class="mt-0.5 h-5 w-5 text-gray-600" />
+                        <div>
+                            <dt class="text-gray-600">Date and time</dt>
+                            <dd class="font-medium text-gray-900">
+                                {{ $event->event_date->format('F d, Y') }} at {{ \Carbon\Carbon::parse($event->event_time)->format('h:i A') }}
+                            </dd>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <x-icon name="pin" class="mt-0.5 h-5 w-5 text-gray-600" />
+                        <div>
+                            <dt class="text-gray-600">Location</dt>
+                            <dd class="font-medium text-gray-900">{{ $event->location }}</dd>
+                        </div>
+                    </div>
+
                     @unless ($isExternal)
-                        <div><strong>Available slots:</strong> {{ max($left, 0) }} of {{ $event->total_slots }}</div>
+                        <div class="flex items-start gap-3">
+                            <x-icon name="ticket" class="mt-0.5 h-5 w-5 text-gray-600" />
+                            <div>
+                                <dt class="text-gray-600">Available slots</dt>
+                                <dd class="font-medium text-gray-900">{{ max($left, 0) }} of {{ $event->total_slots }}</dd>
+                            </div>
+                        </div>
                     @endunless
-                    <div>
-                        <strong>Registration:</strong>
-                        @if ($event->registration_deadline)
-                            {{ $open ? 'closes' : 'closed' }} {{ $event->registration_deadline->format('F d, Y h:i A') }}
-                        @else
-                            open until the event starts
-                        @endif
+
+                    <div class="flex items-start gap-3">
+                        <x-icon name="lock" class="mt-0.5 h-5 w-5 text-gray-600" />
+                        <div>
+                            <dt class="text-gray-600">Registration</dt>
+                            <dd class="font-medium text-gray-900">
+                                @if ($event->registration_deadline)
+                                    {{ $open ? 'Closes' : 'Closed' }} {{ $event->registration_deadline->format('F d, Y h:i A') }}
+                                @else
+                                    Open until the event starts
+                                @endif
+                            </dd>
+                        </div>
                     </div>
                 </dl>
 
@@ -79,12 +87,12 @@
                     <div class="mt-5 grid gap-3 sm:grid-cols-2">
                         @unless ($event->thumbnailUrl())
                             <x-countdown :to="$event->startsAt()->toIso8601String()"
-                                        label="Event starts in" done-text="The event has started" />
+                                         label="Event starts in" done-text="The event has started" />
                         @endunless
 
                         @if ($event->registration_deadline && $open)
                             <x-countdown :to="$event->registration_deadline->toIso8601String()"
-                                        label="Registration closes in" done-text="Registration closed" />
+                                         label="Registration closes in" done-text="Registration closed" />
                         @endif
                     </div>
                 @endif
@@ -92,31 +100,31 @@
                 <div class="mt-6">
                     @guest
                         @if (! $open)
-                            <p class="font-medium text-red-600">Registration is closed.</p>
+                            <x-badge tone="red" icon="lock">Registration is closed</x-badge>
                         @elseif (! $isExternal && $left <= 0)
-                            <p class="text-red-600">This event is full.</p>
+                            <x-badge tone="red" icon="warning">This event is full</x-badge>
                         @else
-                            <a href="{{ $registerUrl }}"
-                               class="inline-block px-6 py-3 bg-gray-800 text-white rounded-md">Log in to register</a>
-                            <p class="mt-2 text-xs text-gray-500">
+                            <x-action :href="$registerUrl" icon="lock" variant="primary">Log in to register</x-action>
+                            <p class="mt-2 text-xs text-gray-700">
                                 You need an account to register. After you log in or sign up, you go straight to the registration.
                             </p>
                         @endif
                     @endguest
 
                     @auth
-                        <p class="text-sm text-gray-600">
+                        <p class="flex items-start gap-2 text-sm text-gray-800">
+                            <x-icon name="info" class="mt-0.5 h-4 w-4" />
                             You are logged in with an organizer account. Only participant accounts can register for events.
                         </p>
 
                         @if (auth()->id() === $event->user_id)
-                            <a href="{{ route('organizer.events.show', $event) }}"
-                               class="inline-block mt-3 px-5 py-2 bg-gray-800 text-white text-sm rounded-md">Manage this event</a>
+                            <x-action :href="route('organizer.events.show', $event)" icon="edit" class="mt-3">Manage this event</x-action>
                         @endif
                     @endauth
                 </div>
             </div>
         </div>
-        <x-event-gallery :event="$event" class="mt-6" />
+
+        <x-event-gallery :event="$event" />
     </div>
 </x-public-layout>

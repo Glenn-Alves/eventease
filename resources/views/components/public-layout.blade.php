@@ -1,3 +1,4 @@
+
 @props(['title' => null])
 
 <!DOCTYPE html>
@@ -13,6 +14,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-gray-100 text-gray-800 antialiased" style="font-family: 'DM Sans', sans-serif;">
+
+    {{-- Skip link for keyboard navigation --}}
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow">
+        Skip to content
+    </a>
 
     <header class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -32,7 +38,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="main">
         {{ $slot }}
     </main>
 
@@ -41,3 +47,4 @@
     </footer>
 </body>
 </html>
+    

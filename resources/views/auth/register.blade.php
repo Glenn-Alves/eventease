@@ -107,7 +107,7 @@
                             required
                             autofocus
                             autocomplete="name"
-                            class="block w-full h-12 px-4 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
+                            class="block w-full h-12 px-4 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-600 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
                         >
 
                         <x-input-error :messages="$errors->get('name')" class="mt-2"/>
@@ -129,7 +129,7 @@
                             placeholder="you@example.com"
                             required
                             autocomplete="username"
-                            class="block w-full h-12 px-4 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
+                            class="block w-full h-12 px-4 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-600 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
                         >
 
                         <x-input-error :messages="$errors->get('email')" class="mt-2"/>
@@ -200,7 +200,7 @@
                                 placeholder="Create a password"
                                 required
                                 autocomplete="new-password"
-                                class="block w-full h-12 px-4 pr-12 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
+                                class="block w-full h-12 px-4 pr-12 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-600 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
                             >
 
                             <button
@@ -265,7 +265,7 @@
                                 placeholder="Enter your password again"
                                 required
                                 autocomplete="new-password"
-                                class="block w-full h-12 px-4 pr-12 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
+                                class="block w-full h-12 px-4 pr-12 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 placeholder-gray-600 shadow-sm transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100 focus:outline-none"
                             >
 
                             <button
@@ -353,7 +353,7 @@
 
 
             {{-- Footer --}}
-            <p class="mt-6 text-center text-xs text-gray-400">
+            <p class="mt-6 text-center text-xs text-gray-600">
                 &copy; {{ date('Y') }} EventEase. All rights reserved.
             </p>
 

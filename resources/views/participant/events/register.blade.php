@@ -58,6 +58,14 @@
         .ee-error { margin: 4px 0 0; font-size: .8rem; color: #b91c1c; }
         .ee-btn { display: inline-block; margin-top: 28px; padding: 12px 28px; font: inherit; font-weight: 600; text-decoration: none; color: var(--ee-primary-text); background: var(--ee-primary); border: 0; border-radius: var(--ee-radius); cursor: pointer; }
         .ee-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .ee-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .ee-steps { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0 0 1.25rem; padding: 0; list-style: none; font-size: .8rem; }
+        .ee-step { display: flex; align-items: center; gap: .4rem; opacity: .7; }
+        .ee-step.is-current { opacity: 1; font-weight: 700; }
+        .ee-step-dot { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; font-size: .75rem; border: 2px solid var(--ee-primary); border-radius: 999px; }
+        .ee-step.is-done .ee-step-dot, .ee-step.is-current .ee-step-dot { color: var(--ee-primary-text); background: var(--ee-primary); }
+        .ee-steps-line { width: 1.5rem; height: 2px; background: var(--ee-primary); opacity: .4; }
+        .ee-error::before, .ee-alert::before { content: '\26A0\FE0E'; margin-right: .35rem; }
     </style>
 </head>
 <body style="{{ $event->themeStyle() }}">
@@ -87,9 +95,31 @@
         @endif
 
         <form method="POST" action="{{ route('participant.events.register', $event) }}" class="ee-card">
-            @csrf
+    @csrf
 
-            <h1 class="ee-title">{{ $formTitle }}</h1>
+    {{-- Registration steps --}}
+    <ol class="ee-steps" aria-label="Registration steps">
+        <li class="ee-step is-done">
+            <span class="ee-step-dot">&#10003;</span>
+            <span>Choose event</span>
+        </li>
+
+        <li class="ee-steps-line" aria-hidden="true"></li>
+
+        <li class="ee-step is-current" aria-current="step">
+            <span class="ee-step-dot">2</span>
+            <span>Fill the form</span>
+        </li>
+
+        <li class="ee-steps-line" aria-hidden="true"></li>
+
+        <li class="ee-step">
+            <span class="ee-step-dot">3</span>
+            <span>Get your ticket</span>
+        </li>
+    </ol>
+
+    <h1 class="ee-title">{{ $formTitle }}</h1>
 
             @if ($theme['intro'])
                 <p class="ee-intro">{{ $theme['intro'] }}</p>
@@ -197,7 +227,7 @@
                             <label class="ee-label" for="field-{{ $field->id }}">
                                 {{ $field->label }}
                                 @if ($field->is_required)
-                                    <span class="ee-req">*</span>
+                                    <span class="ee-req" aria-hidden="true">*</span><span class="ee-sr"> required</span>
                                 @endif
                             </label>
 

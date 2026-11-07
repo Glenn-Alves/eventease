@@ -2,3 +2,27 @@
 @import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
+
+/* Keyboard focus is always visible */
+:focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+}
+
+/* Bigger hit areas on touch screens: 44 px */
+@media (pointer: coarse) {
+    .tap {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* People who ask their device for less motion get no animation */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
