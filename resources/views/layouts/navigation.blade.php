@@ -36,6 +36,13 @@
                         </x-nav-link>
 
                         <x-nav-link
+                            :href="route('organizer.reports.index')"
+                            :active="request()->routeIs('organizer.reports.*')">
+                            <x-icon name="chart" class="me-1.5 h-4 w-4" />
+                            Reports
+                        </x-nav-link>
+
+                        <x-nav-link
                             :href="route('organizer.events.create')"
                             :active="request()->routeIs('organizer.events.create')">
                             <x-icon name="plus" class="me-1.5 h-4 w-4" />
@@ -151,6 +158,13 @@
                     :active="request()->routeIs('organizer.events.*') && ! request()->routeIs('organizer.events.create')">
                     <x-icon name="calendar" class="inline-block me-2 h-4 w-4" />
                     My events
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('organizer.reports.index')"
+                    :active="request()->routeIs('organizer.reports.*')">
+                    <x-icon name="chart" class="inline-block me-2 h-4 w-4" />
+                    Reports
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link

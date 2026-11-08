@@ -10,6 +10,7 @@ use App\Http\Controllers\PublicEventController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Organizer\CheckInController;
 use App\Http\Controllers\Organizer\GalleryController;
+use App\Http\Controllers\Organizer\ReportController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
@@ -36,10 +37,12 @@ Route::middleware(['auth', 'role:organizer'])
         Route::post('events/{event}/check-in', [CheckInController::class, 'store'])->name('events.checkin.store');
         Route::post('events/{event}/check-in/undo', [CheckInController::class, 'undo'])->name('events.checkin.undo');
         Route::get('events/{event}/gallery', [GalleryController::class, 'edit'])->name('events.gallery.edit');
-Route::post('events/{event}/gallery', [GalleryController::class, 'store'])->name('events.gallery.store');
-Route::post('events/{event}/gallery/reorder', [GalleryController::class, 'reorder'])->name('events.gallery.reorder');
-Route::patch('events/{event}/gallery/{item}', [GalleryController::class, 'update'])->name('events.gallery.update');
-Route::delete('events/{event}/gallery/{item}', [GalleryController::class, 'destroy'])->name('events.gallery.destroy');
+        Route::post('events/{event}/gallery', [GalleryController::class, 'store'])->name('events.gallery.store');
+        Route::post('events/{event}/gallery/reorder', [GalleryController::class, 'reorder'])->name('events.gallery.reorder');
+        Route::patch('events/{event}/gallery/{item}', [GalleryController::class, 'update'])->name('events.gallery.update');
+        Route::delete('events/{event}/gallery/{item}', [GalleryController::class, 'destroy'])->name('events.gallery.destroy');
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
     });
 
 Route::middleware(['auth', 'role:participant'])
