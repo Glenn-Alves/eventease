@@ -6,10 +6,12 @@
         <div class="flex justify-between h-16">
 
             <div class="flex">
+
                 {{-- Logo --}}
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
                         <x-application-logo class="block h-9 w-auto text-gray-800" />
+
                         <span class="font-serif text-xl font-bold tracking-wide text-gray-800">
                             EventEase
                         </span>
@@ -19,7 +21,41 @@
                 {{-- Desktop Navigation Links --}}
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 
-                    @if (auth()->user()->role === 'organizer')
+                    {{-- ADMIN NAVIGATION --}}
+                    @if (auth()->user()->role === 'admin')
+
+                        <x-nav-link
+                            :href="route('admin.dashboard')"
+                            :active="request()->routeIs('admin.dashboard')">
+                            <x-icon name="home" class="me-1.5 h-4 w-4" />
+                            Dashboard
+                        </x-nav-link>
+
+                        <x-nav-link
+                            :href="route('admin.events.index')"
+                            :active="request()->routeIs('admin.events.*')">
+                            <x-icon name="calendar" class="me-1.5 h-4 w-4" />
+                            Events
+                        </x-nav-link>
+
+                        <x-nav-link
+                            :href="route('admin.users.index')"
+                            :active="request()->routeIs('admin.users.*')">
+                            <x-icon name="user" class="me-1.5 h-4 w-4" />
+                            Accounts
+                        </x-nav-link>
+
+                        @can('manage-admins')
+                            <x-nav-link
+                                :href="route('admin.admins.index')"
+                                :active="request()->routeIs('admin.admins.*')">
+                                <x-icon name="lock" class="me-1.5 h-4 w-4" />
+                                Admins
+                            </x-nav-link>
+                        @endcan
+
+                    {{-- ORGANIZER NAVIGATION --}}
+                    @elseif (auth()->user()->role === 'organizer')
 
                         <x-nav-link
                             :href="route('organizer.dashboard')"
@@ -49,6 +85,7 @@
                             New event
                         </x-nav-link>
 
+                    {{-- PARTICIPANT NAVIGATION --}}
                     @else
 
                         <x-nav-link
@@ -73,8 +110,10 @@
             {{-- Settings Dropdown --}}
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
+
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -86,10 +125,12 @@
                                           clip-rule="evenodd" />
                                 </svg>
                             </div>
+
                         </button>
                     </x-slot>
 
                     <x-slot name="content">
+
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -104,6 +145,7 @@
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
+
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -117,6 +159,7 @@
                     :aria-expanded="open.toString()">
 
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+
                         <path
                             :class="{ 'hidden': open, 'inline-flex': ! open }"
                             class="inline-flex"
@@ -132,9 +175,11 @@
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
+
                     </svg>
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -144,7 +189,41 @@
         {{-- Mobile Navigation Links --}}
         <div class="pt-2 pb-3 space-y-1">
 
-            @if (auth()->user()->role === 'organizer')
+            {{-- ADMIN NAVIGATION --}}
+            @if (auth()->user()->role === 'admin')
+
+                <x-responsive-nav-link
+                    :href="route('admin.dashboard')"
+                    :active="request()->routeIs('admin.dashboard')">
+                    <x-icon name="home" class="inline-block me-2 h-4 w-4" />
+                    Dashboard
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.events.index')"
+                    :active="request()->routeIs('admin.events.*')">
+                    <x-icon name="calendar" class="inline-block me-2 h-4 w-4" />
+                    Events
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('admin.users.index')"
+                    :active="request()->routeIs('admin.users.*')">
+                    <x-icon name="user" class="inline-block me-2 h-4 w-4" />
+                    Accounts
+                </x-responsive-nav-link>
+
+                @can('manage-admins')
+                    <x-responsive-nav-link
+                        :href="route('admin.admins.index')"
+                        :active="request()->routeIs('admin.admins.*')">
+                        <x-icon name="lock" class="inline-block me-2 h-4 w-4" />
+                        Admins
+                    </x-responsive-nav-link>
+                @endcan
+
+            {{-- ORGANIZER NAVIGATION --}}
+            @elseif (auth()->user()->role === 'organizer')
 
                 <x-responsive-nav-link
                     :href="route('organizer.dashboard')"
@@ -174,6 +253,7 @@
                     New event
                 </x-responsive-nav-link>
 
+            {{-- PARTICIPANT NAVIGATION --}}
             @else
 
                 <x-responsive-nav-link
@@ -227,4 +307,5 @@
             </div>
         </div>
     </div>
+
 </nav>

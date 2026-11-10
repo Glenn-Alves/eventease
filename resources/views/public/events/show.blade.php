@@ -114,7 +114,7 @@
                     @auth
                         <p class="flex items-start gap-2 text-sm text-gray-800">
                             <x-icon name="info" class="mt-0.5 h-4 w-4" />
-                            You are logged in with an organizer account. Only participant accounts can register for events.
+                            You are logged in with an {{ auth()->user()->role }} account. Only participant accounts can register for events.
                         </p>
 
                         @if (auth()->id() === $event->user_id)

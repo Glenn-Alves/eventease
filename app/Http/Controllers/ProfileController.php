@@ -42,6 +42,7 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        abort_if($request->user()->isAdmin(), 403, 'Admin accounts cannot be deleted here.');
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);

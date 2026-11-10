@@ -11,16 +11,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Organizer\CheckInController;
 use App\Http\Controllers\Organizer\GalleryController;
 use App\Http\Controllers\Organizer\ReportController;
+use App\Http\Controllers\Admin\AdminAccountController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
 
 Route::get('/dashboard', function () {
-    if (auth()->user()->role === 'organizer') {
-        return app(DashboardController::class)->index();
-    }
-
-    return redirect()->route('participant.dashboard');
+    return redirect()->route(auth()->user()->homeRoute());
 })->middleware('auth')->name('dashboard');
 
 Route::middleware(['auth', 'role:organizer'])
@@ -43,6 +43,24 @@ Route::middleware(['auth', 'role:organizer'])
         Route::delete('events/{event}/gallery/{item}', [GalleryController::class, 'destroy'])->name('events.gallery.destroy');
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+    });
+
+    Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
+        Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->name('events.destroy');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        // Only the owner admin can open these
+        Route::middleware('can:manage-admins')->group(function () {
+            Route::get('/admins', [AdminAccountController::class, 'index'])->name('admins.index');
+            Route::post('/admins', [AdminAccountController::class, 'store'])->name('admins.store');
+            Route::delete('/admins/{user}', [AdminAccountController::class, 'destroy'])->name('admins.destroy');
+        });
     });
 
 Route::middleware(['auth', 'role:participant'])

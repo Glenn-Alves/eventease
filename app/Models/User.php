@@ -40,4 +40,26 @@ class User extends Authenticatable
     {
         return $this->hasMany(Registration::class);
     }
+
+    public function isAdmin(): bool
+{
+    return $this->role === 'admin';
+}
+
+// The owner is the first admin ever created
+public function isOwner(): bool
+{
+    return $this->isAdmin()
+        && $this->id === static::where('role', 'admin')->orderBy('id')->value('id');
+}
+
+// The route name of the dashboard for this account type
+public function homeRoute(): string
+{
+    return match ($this->role) {
+        'admin' => 'admin.dashboard',
+        'organizer' => 'organizer.dashboard',
+        default => 'participant.dashboard',
+    };
+}
 }
