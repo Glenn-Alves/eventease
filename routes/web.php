@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminAccountController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\RequestController as AdminRequestController;
 
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
@@ -25,22 +26,38 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'role:organizer'])
     ->prefix('organizer')->name('organizer.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Pending approval page
+        Route::get('/pending', function () {
+            return auth()->user()->isApproved()
+                ? redirect()->route('organizer.dashboard')
+                : view('organizer.pending');
+        })->name('pending');
+
+        // Organizer dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+
         Route::resource('events', EventController::class);
+
         Route::get('events/{event}/form', [FormDesignerController::class, 'edit'])->name('events.form.edit');
         Route::put('events/{event}/form', [FormDesignerController::class, 'update'])->name('events.form.update');
         Route::get('events/{event}/preview', [FormDesignerController::class, 'preview'])->name('events.preview');
         Route::put('events/{event}/preview', [FormDesignerController::class, 'previewDraft'])->name('events.preview.draft');
+
         Route::get('events/{event}/registrations/export', [RegistrationController::class, 'export'])->name('events.registrations.export');
         Route::get('events/{event}/registrations/{registration}', [RegistrationController::class, 'show'])->name('events.registrations.show');
+
         Route::get('events/{event}/check-in', [CheckInController::class, 'show'])->name('events.checkin.show');
         Route::post('events/{event}/check-in', [CheckInController::class, 'store'])->name('events.checkin.store');
         Route::post('events/{event}/check-in/undo', [CheckInController::class, 'undo'])->name('events.checkin.undo');
+
         Route::get('events/{event}/gallery', [GalleryController::class, 'edit'])->name('events.gallery.edit');
         Route::post('events/{event}/gallery', [GalleryController::class, 'store'])->name('events.gallery.store');
         Route::post('events/{event}/gallery/reorder', [GalleryController::class, 'reorder'])->name('events.gallery.reorder');
         Route::patch('events/{event}/gallery/{item}', [GalleryController::class, 'update'])->name('events.gallery.update');
         Route::delete('events/{event}/gallery/{item}', [GalleryController::class, 'destroy'])->name('events.gallery.destroy');
+
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
     });
@@ -60,6 +77,11 @@ Route::middleware(['auth', 'role:organizer'])
             Route::get('/admins', [AdminAccountController::class, 'index'])->name('admins.index');
             Route::post('/admins', [AdminAccountController::class, 'store'])->name('admins.store');
             Route::delete('/admins/{user}', [AdminAccountController::class, 'destroy'])->name('admins.destroy');
+            Route::get('/requests', [AdminRequestController::class, 'index'])->name('requests.index');
+            Route::post('/requests/accounts/{user}/approve', [AdminRequestController::class, 'approveAccount'])->name('requests.accounts.approve');
+            Route::post('/requests/accounts/{user}/decline', [AdminRequestController::class, 'declineAccount'])->name('requests.accounts.decline');
+            Route::post('/requests/events/{event}/approve', [AdminRequestController::class, 'approveEvent'])->name('requests.events.approve');
+            Route::post('/requests/events/{event}/decline', [AdminRequestController::class, 'declineEvent'])->name('requests.events.decline');
         });
     });
 

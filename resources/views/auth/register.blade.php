@@ -177,7 +177,7 @@
                         </div>
 
                         <p class="mt-2 text-xs text-gray-500">
-                            Choose whether you want to attend events or organize them.
+                            Choose whether you want to attend events or organize them. Organizer accounts need approval from an admin before you can create events.
                         </p>
 
                         <x-input-error :messages="$errors->get('role')" class="mt-2"/>

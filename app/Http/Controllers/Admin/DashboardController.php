@@ -22,6 +22,8 @@ class DashboardController extends Controller
             'checkedIn' => Registration::whereNotNull('checked_in_at')->count(),
             'recentEvents' => Event::with('organizer')->withCount('registrations')->latest()->limit(5)->get(),
             'recentUsers' => User::latest()->limit(5)->get(),
+            'waitingAccounts' => User::where('role', 'organizer')->where('account_status', 'pending')->count(),
+            'waitingEvents' => Event::where('approval_status', 'pending')->count(),
         ]);
     }
 }

@@ -172,4 +172,14 @@ public function galleryItems(): HasMany
 {
     return $this->hasMany(EventGalleryItem::class)->orderBy('position')->orderBy('id');
 }
+
+public function scopeApproved($query)
+{
+    return $query->where('approval_status', 'approved');
+}
+
+public function isApproved(): bool
+{
+    return $this->approval_status === 'approved';
+}
 }

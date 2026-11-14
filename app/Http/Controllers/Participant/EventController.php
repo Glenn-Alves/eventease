@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Support\Qr;
+use App\Support\EventFilters;
 
 class EventController extends Controller
 {
@@ -20,9 +21,14 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $type = $request->query('type');
-        $type = ($type && isset(Event::TYPES[$type])) ? $type : null;
+        $type = (is_string($type) && isset(Event::TYPES[$type])) ? $type : null;
 
-        $upcoming = Event::whereDate('event_date', '>=', today());
+        $filters = EventFilters::fromRequest($request);
+
+        $upcoming = EventFilters::apply(
+            Event::approved()->whereDate('event_date', '>=', today()),
+            $filters
+        );
 
         $counts = (clone $upcoming)
             ->selectRaw('type, count(*) as total')
@@ -33,6 +39,7 @@ class EventController extends Controller
             ->withCount('registrations')
             ->when($type, fn ($query) => $query->where('type', $type))
             ->orderBy('event_date')
+            ->orderBy('event_time')
             ->get();
 
         $user = auth()->user();
@@ -48,17 +55,32 @@ class EventController extends Controller
             ->first();
 
         return view('participant.dashboard', compact(
-            'events', 'type', 'counts', 'myCount', 'registeredIds', 'nextRegistered'
+            'events',
+            'type',
+            'counts',
+            'filters',
+            'myCount',
+            'registeredIds',
+            'nextRegistered'
         ));
     }
 
-    // Event details page: thumbnail, description, when and where, and the Register button
+    // Event details page
     public function show(Event $event)
     {
+        abort_unless(
+            $event->isApproved() || $event->registrations()
+                ->where('user_id', auth()->id())
+                ->exists(),
+            404
+        );
+
         $event->loadCount('registrations');
 
-        $registration = $event->registrations()->with('category')
-            ->where('user_id', auth()->id())->first();
+        $registration = $event->registrations()
+            ->with('category')
+            ->where('user_id', auth()->id())
+            ->first();
 
         return view('participant.events.show', compact('event', 'registration'));
     }
@@ -66,19 +88,28 @@ class EventController extends Controller
     // The separate page that shows only the organizer's form
     public function registerForm(Event $event)
     {
+        abort_unless($event->isApproved(), 404);
+
         if ($event->registration_mode === 'external') {
             return redirect()->route('participant.events.show', $event);
         }
 
         $event->loadCount('registrations');
+
         $event->load([
             'fields',
             'categories' => fn ($query) => $query->withCount('registrations'),
         ]);
 
-        $already = $event->registrations()->where('user_id', auth()->id())->exists();
+        $already = $event->registrations()
+            ->where('user_id', auth()->id())
+            ->exists();
 
-        if ($already || ! $event->isRegistrationOpen() || $event->registrations_count >= $event->total_slots) {
+        if (
+            $already ||
+            ! $event->isRegistrationOpen() ||
+            $event->registrations_count >= $event->total_slots
+        ) {
             return redirect()->route('participant.events.show', $event);
         }
 
@@ -90,8 +121,15 @@ class EventController extends Controller
 
     public function register(Request $request, Event $event)
     {
-        abort_if($event->registration_mode === 'external', 403, 'This event uses an external registration form.');
-                if (! $event->isRegistrationOpen()) {
+        abort_unless($event->isApproved(), 404);
+
+        abort_if(
+            $event->registration_mode === 'external',
+            403,
+            'This event uses an external registration form.'
+        );
+
+        if (! $event->isRegistrationOpen()) {
             return redirect()->route('participant.events.show', $event)
                 ->withErrors(['register' => 'Registration for this event is closed.']);
         }
@@ -100,13 +138,19 @@ class EventController extends Controller
         $fields = $event->fields()->get()
             ->reject(fn ($field) => in_array($field->type, ['section', 'note']));
 
-        $categories = $event->supportsCategories() ? $event->categories()->get() : collect();
+        $categories = $event->supportsCategories()
+            ? $event->categories()->get()
+            : collect();
 
         $rules = [];
         $attributes = [];
 
         if ($categories->isNotEmpty()) {
-            $rules['category_id'] = ['required', Rule::in($categories->pluck('id')->all())];
+            $rules['category_id'] = [
+                'required',
+                Rule::in($categories->pluck('id')->all()),
+            ];
+
             $attributes['category_id'] = 'category';
         }
 
@@ -119,20 +163,32 @@ class EventController extends Controller
                 case 'number':
                     $rules[$key] = [$presence, 'numeric'];
                     break;
+
                 case 'date':
                     $rules[$key] = [$presence, 'date'];
                     break;
+
                 case 'dropdown':
                 case 'radio':
-                    $rules[$key] = [$presence, 'string', Rule::in($field->options ?? [])];
+                    $rules[$key] = [
+                        $presence,
+                        'string',
+                        Rule::in($field->options ?? []),
+                    ];
                     break;
+
                 case 'checkbox':
                     $rules[$key] = [$presence, 'array'];
-                    $rules[$key.'.*'] = ['string', Rule::in($field->options ?? [])];
+                    $rules[$key.'.*'] = [
+                        'string',
+                        Rule::in($field->options ?? []),
+                    ];
                     break;
+
                 case 'textarea':
                     $rules[$key] = [$presence, 'string', 'max:5000'];
                     break;
+
                 default:
                     $rules[$key] = [$presence, 'string', 'max:255'];
             }
@@ -141,9 +197,16 @@ class EventController extends Controller
         $request->validate($rules, [], $attributes);
 
         $answers = $request->input('answers', []);
-        $categoryId = $event->supportsCategories() ? $request->input('category_id') : null;
+        $categoryId = $event->supportsCategories()
+            ? $request->input('category_id')
+            : null;
 
-        $error = DB::transaction(function () use ($event, $fields, $answers, $categoryId) {
+        $error = DB::transaction(function () use (
+            $event,
+            $fields,
+            $answers,
+            $categoryId
+        ) {
             // Lock rows so two people cannot take the last slot at the same time
             $event = Event::whereKey($event->id)->lockForUpdate()->first();
 
@@ -200,7 +263,11 @@ class EventController extends Controller
         });
 
         if ($error) {
-            $response = in_array($error, [self::ALREADY_REGISTERED, self::EVENT_FULL], true)
+            $response = in_array(
+                $error,
+                [self::ALREADY_REGISTERED, self::EVENT_FULL],
+                true
+            )
                 ? redirect()->route('participant.events.show', $event)
                 : back()->withInput();
 
@@ -208,37 +275,38 @@ class EventController extends Controller
         }
 
         $registration = Registration::where('user_id', auth()->id())
-        ->where('event_id', $event->id)
-        ->first();
+            ->where('event_id', $event->id)
+            ->first();
 
-    return redirect()->route('participant.registrations.show', $registration)
-        ->with('status', 'Registration successful! Show this QR code at the entrance.');
+        return redirect()->route('participant.registrations.show', $registration)
+            ->with('status', 'Registration successful! Show this QR code at the entrance.');
     }
 
     public function myRegistrations()
-{
-    $registrations = auth()->user()->registrations()
-        ->with(['event', 'category'])
-        ->get();
+    {
+        $registrations = auth()->user()->registrations()
+            ->with(['event', 'category'])
+            ->get();
 
-    $upcoming = $registrations
-        ->filter(fn ($registration) => ! $registration->event->event_date->isBefore(today()))
-        ->sortBy(fn ($registration) => $registration->event->event_date)
-        ->values();
+        $upcoming = $registrations
+            ->filter(fn ($registration) => ! $registration->event->event_date->isBefore(today()))
+            ->sortBy(fn ($registration) => $registration->event->event_date)
+            ->values();
 
-    $past = $registrations
-        ->filter(fn ($registration) => $registration->event->event_date->isBefore(today()))
-        ->sortByDesc(fn ($registration) => $registration->event->event_date)
-        ->values();
+        $past = $registrations
+            ->filter(fn ($registration) => $registration->event->event_date->isBefore(today()))
+            ->sortByDesc(fn ($registration) => $registration->event->event_date)
+            ->values();
 
-    return view('participant.registrations', compact('upcoming', 'past'));
-}
+        return view('participant.registrations', compact('upcoming', 'past'));
+    }
 
     public function ticket(Registration $registration)
     {
         abort_unless($registration->user_id === auth()->id(), 404);
 
         $registration->load(['event', 'category']);
+
         $qr = Qr::svg($registration->ticket_code, 260);
 
         return view('participant.ticket', compact('registration', 'qr'));

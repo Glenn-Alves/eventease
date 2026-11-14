@@ -14,16 +14,21 @@ class RoleMiddleware
      * @param  Closure(Request): (Response)  $next
      */
 public function handle(Request $request, Closure $next, string $role): Response
-{
-    $user = $request->user();
+        {
+            $user = $request->user();
 
-    abort_unless($user && in_array($user->role, ['admin', 'organizer', 'participant'], true), 403);
+            abort_unless($user && in_array($user->role, ['admin', 'organizer', 'participant'], true), 403);
 
-    // Wrong account type: send the person to their own dashboard instead of an error page
-    if ($user->role !== $role) {
-        return redirect()->route($user->homeRoute());
-    }
+            // Wrong account type: send the person to their own dashboard instead of an error page
+            if ($user->role !== $role) {
+                return redirect()->route($user->homeRoute());
+            }
 
-    return $next($request);
-}
+            // Organizers must be approved by an admin first
+            if ($role === 'organizer' && ! $user->isApproved() && ! $request->routeIs('organizer.pending')) {
+                return redirect()->route('organizer.pending');
+            }
+
+            return $next($request);
+        }
 }

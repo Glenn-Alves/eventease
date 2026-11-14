@@ -59,10 +59,12 @@ public function show(Event $event)
             $attributes['thumbnail'] = $request->file('thumbnail')->store('events', 'public');
         }
 
-        $event = $request->user()->events()->create($attributes);
+        $event = $request->user()->events()->make($attributes);
+        $event->approval_status = 'pending';
+        $event->save();
 
         return redirect()->route('organizer.events.form.edit', $event)
-            ->with('status', 'Event created. Now design your registration form.');
+            ->with('status', 'Event created and sent to the admin for approval. You can design the registration form while you wait.');
     }
 
     public function edit(Event $event)
@@ -86,6 +88,19 @@ public function show(Event $event)
         }
 
         $event->update($attributes);
+
+        // A declined event goes back to the admin when the organizer fixes it and saves
+        if ($event->approval_status === 'rejected') {
+            $event->forceFill([
+                'approval_status' => 'pending',
+                'approval_note' => null,
+                'reviewed_at' => null,
+                'reviewed_by' => null,
+            ])->save();
+
+            return redirect()->route('organizer.events.show', $event)
+                ->with('status', 'Event updated and sent to the admin for review again.');
+        }
 
         return redirect()->route('organizer.events.index')->with('status', 'Event updated.');
     }

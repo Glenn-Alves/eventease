@@ -11,6 +11,16 @@
 
 <x-public-layout :title="$event->title.' | EventEase'">
     <div class="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
+            @unless ($event->isApproved())
+                <div class="flex items-start gap-3 rounded-xl border border-amber-700/40 bg-amber-50 p-4 text-amber-950" role="status">
+                    <x-icon name="warning" class="mt-0.5 h-5 w-5 shrink-0" />
+                    <p class="text-sm">
+                        <strong>Not public yet.</strong>
+                        This event is {{ $event->approval_status === 'pending' ? 'waiting for admin approval' : 'declined' }}.
+                        Only its organizer and the admins can see this page.
+                    </p>
+                </div>
+            @endunless
 
         <a href="{{ route('home') }}" class="tap inline-flex items-center gap-1.5 text-sm text-gray-800 underline">
             <x-icon name="back" class="h-4 w-4" /> All events

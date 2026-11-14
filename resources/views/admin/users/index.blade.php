@@ -1,4 +1,6 @@
+
 <x-app-layout>
+
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-gray-800">Manage accounts</h2>
     </x-slot>
@@ -8,31 +10,44 @@
 
         <form method="GET" action="{{ route('admin.users.index') }}"
               class="flex flex-wrap items-end gap-3 rounded-xl bg-white p-4 shadow">
+
             <div>
-                <label for="search" class="block text-sm font-medium text-gray-800">Search by name or email</label>
+                <label for="search" class="block text-sm font-medium text-gray-800">
+                    Search by name or email
+                </label>
                 <input id="search" name="search" type="search" value="{{ $search }}"
                        class="mt-1 w-72 max-w-full rounded-md border-gray-400 text-sm shadow-sm">
             </div>
 
             <div>
-                <label for="role" class="block text-sm font-medium text-gray-800">Account type</label>
-                <select id="role" name="role" class="mt-1 rounded-md border-gray-400 text-sm shadow-sm">
+                <label for="role" class="block text-sm font-medium text-gray-800">
+                    Account type
+                </label>
+                <select id="role" name="role"
+                        class="mt-1 rounded-md border-gray-400 text-sm shadow-sm">
                     <option value="">All</option>
                     @foreach (['organizer' => 'Organizers', 'participant' => 'Participants', 'admin' => 'Admins'] as $value => $label)
-                        <option value="{{ $value }}" @selected($role === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected($role === $value)>
+                            {{ $label }}
+                        </option>
                     @endforeach
                 </select>
             </div>
 
-            <x-action type="submit" icon="search" variant="primary">Show accounts</x-action>
+            <x-action type="submit" icon="search" variant="primary">
+                Show accounts
+            </x-action>
 
             @if ($search !== '' || $role)
-                <x-action :href="route('admin.users.index')" icon="close">Clear</x-action>
+                <x-action :href="route('admin.users.index')" icon="close">
+                    Clear
+                </x-action>
             @endif
         </form>
 
         @if ($users->isEmpty())
-            <x-empty-state icon="user" title="No accounts found" text="Try another search or account type." />
+            <x-empty-state icon="user" title="No accounts found"
+                           text="Try another search or account type." />
         @else
             <div class="rounded-xl bg-white p-6 shadow">
                 <div class="overflow-x-auto">
@@ -46,6 +61,7 @@
                                 <th scope="col" class="py-2 text-right">Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @foreach ($users as $user)
                                 @php
@@ -56,13 +72,28 @@
 
                                 <tr class="border-t align-top">
                                     <td class="py-3 pe-3">
-                                        <div class="font-medium text-gray-900">{{ $user->name }}</div>
-                                        <div class="text-xs text-gray-700">{{ $user->email }}</div>
+                                        <div class="font-medium text-gray-900">
+                                            {{ $user->name }}
+                                        </div>
+                                        <div class="text-xs text-gray-700">
+                                            {{ $user->email }}
+                                        </div>
                                     </td>
 
-                                    <td class="py-3 pe-3"><x-role-badge :role="$user->role" /></td>
+                                    {{-- Account type and approval status --}}
+                                    <td class="py-3 pe-3">
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <x-role-badge :role="$user->role" />
 
-                                    <td class="whitespace-nowrap py-3 pe-3">{{ $user->created_at->format('M d, Y') }}</td>
+                                            @if ($user->role === 'organizer')
+                                                <x-approval-badge :status="$user->account_status" />
+                                            @endif
+                                        </div>
+                                    </td>
+
+                                    <td class="whitespace-nowrap py-3 pe-3">
+                                        {{ $user->created_at->format('M d, Y') }}
+                                    </td>
 
                                     <td class="py-3 pe-3 text-gray-800">
                                         @if ($user->role === 'organizer')
@@ -74,20 +105,40 @@
                                         @endif
                                     </td>
 
+                                    {{-- Account actions --}}
                                     <td class="py-3 text-right">
                                         @if ($user->id === auth()->id())
-                                            <span class="text-xs text-gray-700">This is you</span>
+                                            <span class="text-xs text-gray-700">
+                                                This is you
+                                            </span>
+
                                         @elseif ($user->isAdmin())
                                             <span class="inline-flex items-center gap-1 text-xs text-gray-700">
-                                                <x-icon name="lock" class="h-4 w-4" /> Managed in Admin accounts
+                                                <x-icon name="lock" class="h-4 w-4" />
+                                                Managed in Admin accounts
                                             </span>
+
                                         @else
-                                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
-                                                  onsubmit="return confirm(@js($confirmText))">
-                                                @csrf
-                                                @method('DELETE')
-                                                <x-action type="submit" icon="trash" variant="danger">Delete account</x-action>
-                                            </form>
+                                            <div class="flex flex-col items-end gap-2">
+                                                @if ($user->role === 'organizer')
+                                                    <x-decision-buttons
+                                                        :approve-url="route('admin.requests.accounts.approve', $user)"
+                                                        :decline-url="route('admin.requests.accounts.decline', $user)"
+                                                        :status="$user->account_status"
+                                                    />
+                                                @endif
+
+                                                <form method="POST"
+                                                      action="{{ route('admin.users.destroy', $user) }}"
+                                                      onsubmit="return confirm(@js($confirmText))">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <x-action type="submit" icon="trash" variant="danger">
+                                                        Delete account
+                                                    </x-action>
+                                                </form>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>
@@ -96,8 +147,11 @@
                     </table>
                 </div>
 
-                <div class="mt-4">{{ $users->links() }}</div>
+                <div class="mt-4">
+                    {{ $users->links() }}
+                </div>
             </div>
         @endif
     </div>
+
 </x-app-layout>

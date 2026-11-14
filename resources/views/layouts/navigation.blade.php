@@ -38,6 +38,26 @@
                             Events
                         </x-nav-link>
 
+                        @php
+                            $waiting = \App\Models\Event::where('approval_status', 'pending')->count()
+                                + \App\Models\User::where('role', 'organizer')
+                                    ->where('account_status', 'pending')
+                                    ->count();
+                        @endphp
+
+                        <x-nav-link
+                            :href="route('admin.requests.index')"
+                            :active="request()->routeIs('admin.requests.*')">
+                            <x-icon name="clock" class="me-1.5 h-4 w-4" />
+                            Requests
+
+                            @if ($waiting > 0)
+                                <span class="ms-1.5 rounded-full bg-red-700 px-2 py-0.5 text-xs font-semibold text-white">
+                                    {{ $waiting }}<span class="sr-only"> waiting</span>
+                                </span>
+                            @endif
+                        </x-nav-link>
+
                         <x-nav-link
                             :href="route('admin.users.index')"
                             :active="request()->routeIs('admin.users.*')">
@@ -57,33 +77,46 @@
                     {{-- ORGANIZER NAVIGATION --}}
                     @elseif (auth()->user()->role === 'organizer')
 
-                        <x-nav-link
-                            :href="route('organizer.dashboard')"
-                            :active="request()->routeIs('organizer.dashboard')">
-                            <x-icon name="home" class="me-1.5 h-4 w-4" />
-                            Dashboard
-                        </x-nav-link>
+                        @if (auth()->user()->isApproved())
 
-                        <x-nav-link
-                            :href="route('organizer.events.index')"
-                            :active="request()->routeIs('organizer.events.*') && ! request()->routeIs('organizer.events.create')">
-                            <x-icon name="calendar" class="me-1.5 h-4 w-4" />
-                            My events
-                        </x-nav-link>
+                            <x-nav-link
+                                :href="route('organizer.dashboard')"
+                                :active="request()->routeIs('organizer.dashboard')">
+                                <x-icon name="home" class="me-1.5 h-4 w-4" />
+                                Dashboard
+                            </x-nav-link>
 
-                        <x-nav-link
-                            :href="route('organizer.reports.index')"
-                            :active="request()->routeIs('organizer.reports.*')">
-                            <x-icon name="chart" class="me-1.5 h-4 w-4" />
-                            Reports
-                        </x-nav-link>
+                            <x-nav-link
+                                :href="route('organizer.events.index')"
+                                :active="request()->routeIs('organizer.events.*') && ! request()->routeIs('organizer.events.create')">
+                                <x-icon name="calendar" class="me-1.5 h-4 w-4" />
+                                My events
+                            </x-nav-link>
 
-                        <x-nav-link
-                            :href="route('organizer.events.create')"
-                            :active="request()->routeIs('organizer.events.create')">
-                            <x-icon name="plus" class="me-1.5 h-4 w-4" />
-                            New event
-                        </x-nav-link>
+                            <x-nav-link
+                                :href="route('organizer.reports.index')"
+                                :active="request()->routeIs('organizer.reports.*')">
+                                <x-icon name="chart" class="me-1.5 h-4 w-4" />
+                                Reports
+                            </x-nav-link>
+
+                            <x-nav-link
+                                :href="route('organizer.events.create')"
+                                :active="request()->routeIs('organizer.events.create')">
+                                <x-icon name="plus" class="me-1.5 h-4 w-4" />
+                                New event
+                            </x-nav-link>
+
+                        @else
+
+                            <x-nav-link
+                                :href="route('organizer.pending')"
+                                :active="request()->routeIs('organizer.pending')">
+                                <x-icon name="clock" class="me-1.5 h-4 w-4" />
+                                Account status
+                            </x-nav-link>
+
+                        @endif
 
                     {{-- PARTICIPANT NAVIGATION --}}
                     @else
@@ -207,6 +240,19 @@
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link
+                    :href="route('admin.requests.index')"
+                    :active="request()->routeIs('admin.requests.*')">
+                    <x-icon name="clock" class="inline-block me-2 h-4 w-4" />
+                    Requests
+
+                    @if ($waiting > 0)
+                        <span class="ms-1.5 rounded-full bg-red-700 px-2 py-0.5 text-xs font-semibold text-white">
+                            {{ $waiting }}<span class="sr-only"> waiting</span>
+                        </span>
+                    @endif
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
                     :href="route('admin.users.index')"
                     :active="request()->routeIs('admin.users.*')">
                     <x-icon name="user" class="inline-block me-2 h-4 w-4" />
@@ -225,33 +271,46 @@
             {{-- ORGANIZER NAVIGATION --}}
             @elseif (auth()->user()->role === 'organizer')
 
-                <x-responsive-nav-link
-                    :href="route('organizer.dashboard')"
-                    :active="request()->routeIs('organizer.dashboard')">
-                    <x-icon name="home" class="inline-block me-2 h-4 w-4" />
-                    Dashboard
-                </x-responsive-nav-link>
+                @if (auth()->user()->isApproved())
 
-                <x-responsive-nav-link
-                    :href="route('organizer.events.index')"
-                    :active="request()->routeIs('organizer.events.*') && ! request()->routeIs('organizer.events.create')">
-                    <x-icon name="calendar" class="inline-block me-2 h-4 w-4" />
-                    My events
-                </x-responsive-nav-link>
+                    <x-responsive-nav-link
+                        :href="route('organizer.dashboard')"
+                        :active="request()->routeIs('organizer.dashboard')">
+                        <x-icon name="home" class="inline-block me-2 h-4 w-4" />
+                        Dashboard
+                    </x-responsive-nav-link>
 
-                <x-responsive-nav-link
-                    :href="route('organizer.reports.index')"
-                    :active="request()->routeIs('organizer.reports.*')">
-                    <x-icon name="chart" class="inline-block me-2 h-4 w-4" />
-                    Reports
-                </x-responsive-nav-link>
+                    <x-responsive-nav-link
+                        :href="route('organizer.events.index')"
+                        :active="request()->routeIs('organizer.events.*') && ! request()->routeIs('organizer.events.create')">
+                        <x-icon name="calendar" class="inline-block me-2 h-4 w-4" />
+                        My events
+                    </x-responsive-nav-link>
 
-                <x-responsive-nav-link
-                    :href="route('organizer.events.create')"
-                    :active="request()->routeIs('organizer.events.create')">
-                    <x-icon name="plus" class="inline-block me-2 h-4 w-4" />
-                    New event
-                </x-responsive-nav-link>
+                    <x-responsive-nav-link
+                        :href="route('organizer.reports.index')"
+                        :active="request()->routeIs('organizer.reports.*')">
+                        <x-icon name="chart" class="inline-block me-2 h-4 w-4" />
+                        Reports
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link
+                        :href="route('organizer.events.create')"
+                        :active="request()->routeIs('organizer.events.create')">
+                        <x-icon name="plus" class="inline-block me-2 h-4 w-4" />
+                        New event
+                    </x-responsive-nav-link>
+
+                @else
+
+                    <x-responsive-nav-link
+                        :href="route('organizer.pending')"
+                        :active="request()->routeIs('organizer.pending')">
+                        <x-icon name="clock" class="inline-block me-2 h-4 w-4" />
+                        Account status
+                    </x-responsive-nav-link>
+
+                @endif
 
             {{-- PARTICIPANT NAVIGATION --}}
             @else

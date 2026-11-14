@@ -16,6 +16,16 @@
 
             <x-action type="submit" icon="search" variant="primary">Search</x-action>
 
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-800">Approval</label>
+                <select id="status" name="status" class="mt-1 rounded-md border-gray-400 text-sm shadow-sm">
+                    <option value="">All</option>
+                    @foreach (['pending' => 'Waiting', 'approved' => 'Approved', 'rejected' => 'Declined'] as $value => $label)
+                        <option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             @if ($search !== '')
                 <x-action :href="route('admin.events.index')" icon="close">Clear</x-action>
             @endif
@@ -58,6 +68,7 @@
                                                 <a href="{{ route('events.show', $event) }}" target="_blank"
                                                    class="font-medium text-indigo-800 underline">{{ $event->title }}</a>
                                                 <div class="mt-1 flex flex-wrap gap-1.5">
+                                                    <x-approval-badge :status="$event->approval_status" />
                                                     <x-badge>{{ \App\Models\Event::TYPES[$event->type] ?? 'Others' }}</x-badge>
                                                     <x-event-status :event="$event" />
                                                 </div>
@@ -78,12 +89,18 @@
                                     </td>
 
                                     <td class="py-3 text-right">
-                                        <form method="POST" action="{{ route('admin.events.destroy', $event) }}"
-                                              onsubmit="return confirm(@js($confirmText))">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-action type="submit" icon="trash" variant="danger">Delete</x-action>
-                                        </form>
+                                        <div class="flex flex-col items-end gap-2">
+                                            <x-decision-buttons :approve-url="route('admin.requests.events.approve', $event)"
+                                                                :decline-url="route('admin.requests.events.decline', $event)"
+                                                                :status="$event->approval_status" reason-required />
+
+                                            <form method="POST" action="{{ route('admin.events.destroy', $event) }}"
+                                                onsubmit="return confirm(@js($confirmText))">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-action type="submit" icon="trash" variant="danger">Delete</x-action>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

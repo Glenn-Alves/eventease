@@ -55,23 +55,50 @@
                 :counts="$counts"
             />
 
-            <div class="flex-1 min-w-0 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 content-start">
+            {{-- Event filters and cards --}}
+            <div class="min-w-0 flex-1 space-y-6">
 
-                @forelse ($events as $event)
-                    <x-event-card
-                        :event="$event"
-                        :href="route('participant.events.show', $event)"
-                        :registered="$registeredIds->contains($event->id)"
-                    />
-                @empty
-                    <x-empty-state
-                        class="col-span-full"
-                        icon="calendar"
-                        title="No upcoming events here yet"
-                        text="Pick another type from the menu, or come back later."
-                    />
-                @endforelse
+                <x-event-filters
+                    route-name="participant.dashboard"
+                    :filters="$filters"
+                    :type="$type"
+                    :count="$events->count()"
+                />
 
+                <div class="grid content-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                    @forelse ($events as $event)
+                        <x-event-card
+                            :event="$event"
+                            :href="route('participant.events.show', $event)"
+                            :registered="$registeredIds->contains($event->id)"
+                        />
+                    @empty
+                        @if (\App\Support\EventFilters::active($filters))
+                            <x-empty-state
+                                class="col-span-full"
+                                icon="search"
+                                title="No events match your search"
+                                text="Try different words, remove a filter, or pick another type from the menu."
+                            >
+                                <x-action
+                                    :href="route('participant.dashboard', array_filter(['type' => $type]))"
+                                    icon="close"
+                                >
+                                    Clear filters
+                                </x-action>
+                            </x-empty-state>
+                        @else
+                            <x-empty-state
+                                class="col-span-full"
+                                icon="calendar"
+                                title="No upcoming events here yet"
+                                text="Pick another type from the menu, or come back later."
+                            />
+                        @endif
+                    @endforelse
+
+                </div>
             </div>
         </div>
     </div>

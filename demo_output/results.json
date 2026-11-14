@@ -1,6 +1,6 @@
 {
-  "started": "2026-11-11 01:26:45",
-  "seconds": 51.1,
+  "started": "2026-11-12 13:51:48",
+  "seconds": 77.2,
   "passed": 24,
   "failed": 0,
   "skipped": 0,
@@ -17,7 +17,7 @@
       "n": 2,
       "title": "Register an organizer account",
       "status": "PASS",
-      "seconds": 2.5,
+      "seconds": 4.1,
       "message": "",
       "shot": "02-register-an-organizer-account.png"
     },
@@ -25,7 +25,7 @@
       "n": 3,
       "title": "Create a Fun Run event with a poster and a registration deadline",
       "status": "PASS",
-      "seconds": 3.2,
+      "seconds": 6.0,
       "message": "",
       "shot": "03-create-a-fun-run-event-with-a-poster-and-a-registr.png"
     },
@@ -33,7 +33,7 @@
       "n": 4,
       "title": "Design the registration form: categories, questions, colors",
       "status": "PASS",
-      "seconds": 7.0,
+      "seconds": 12.4,
       "message": "",
       "shot": "04-design-the-registration-form-categories-questions-.png"
     },
@@ -41,7 +41,7 @@
       "n": 5,
       "title": "Add a route map to the event gallery",
       "status": "PASS",
-      "seconds": 1.4,
+      "seconds": 2.3,
       "message": "",
       "shot": "05-add-a-route-map-to-the-event-gallery.png"
     },
@@ -49,7 +49,7 @@
       "n": 6,
       "title": "Create an event whose registration deadline already passed",
       "status": "PASS",
-      "seconds": 3.0,
+      "seconds": 5.4,
       "message": "",
       "shot": "06-create-an-event-whose-registration-deadline-alread.png"
     },
@@ -57,7 +57,7 @@
       "n": 7,
       "title": "Create a concert with only 1 slot",
       "status": "PASS",
-      "seconds": 2.7,
+      "seconds": 4.9,
       "message": "",
       "shot": "07-create-a-concert-with-only-1-slot.png"
     },
@@ -65,7 +65,7 @@
       "n": 8,
       "title": "A visitor who is not logged in can browse events but must log in to register",
       "status": "PASS",
-      "seconds": 0.7,
+      "seconds": 1.2,
       "message": "",
       "shot": "08-a-visitor-who-is-not-logged-in-can-browse-events-b.png"
     },
@@ -81,7 +81,7 @@
       "n": 10,
       "title": "Register Jordan Parreno as a participant",
       "status": "PASS",
-      "seconds": 2.4,
+      "seconds": 4.1,
       "message": "",
       "shot": "10-register-jordan-parreno-as-a-participant.png"
     },
@@ -89,7 +89,7 @@
       "n": 11,
       "title": "Jordan Parreno registers for the Fun Run, chooses a category, and gets a QR ticket",
       "status": "PASS",
-      "seconds": 2.1,
+      "seconds": 3.6,
       "message": "",
       "shot": "11-jordan-parreno-registers-for-the-fun-run-chooses-a.png"
     },
@@ -97,7 +97,7 @@
       "n": 12,
       "title": "The ticket shows in My Registrations",
       "status": "PASS",
-      "seconds": 0.4,
+      "seconds": 0.6,
       "message": "",
       "shot": "12-the-ticket-shows-in-my-registrations.png"
     },
@@ -105,7 +105,7 @@
       "n": 13,
       "title": "Rule: one person, one ticket (a second registration is refused)",
       "status": "PASS",
-      "seconds": 0.4,
+      "seconds": 0.6,
       "message": "",
       "shot": "13-rule-one-person-one-ticket-a-second-registration-i.png"
     },
@@ -113,7 +113,7 @@
       "n": 14,
       "title": "Rule: registration is closed after the deadline",
       "status": "PASS",
-      "seconds": 0.4,
+      "seconds": 0.6,
       "message": "",
       "shot": "14-rule-registration-is-closed-after-the-deadline.png"
     },
@@ -121,7 +121,7 @@
       "n": 15,
       "title": "Jordan Parreno takes the only slot of the concert",
       "status": "PASS",
-      "seconds": 1.2,
+      "seconds": 1.9,
       "message": "",
       "shot": "15-jordan-parreno-takes-the-only-slot-of-the-concert.png"
     },
@@ -129,7 +129,7 @@
       "n": 16,
       "title": "Register EJ Parreno as a second participant",
       "status": "PASS",
-      "seconds": 2.4,
+      "seconds": 4.0,
       "message": "",
       "shot": "16-register-ej-parreno-as-a-second-participant.png"
     },
@@ -137,7 +137,7 @@
       "n": 17,
       "title": "Rule: EJ Parreno sees that the one-slot concert is full",
       "status": "PASS",
-      "seconds": 0.4,
+      "seconds": 0.6,
       "message": "",
       "shot": "17-rule-ej-parreno-sees-that-the-one-slot-concert-is-.png"
     },
@@ -145,7 +145,7 @@
       "n": 18,
       "title": "The organizer logs in again",
       "status": "PASS",
-      "seconds": 1.5,
+      "seconds": 2.5,
       "message": "",
       "shot": "18-the-organizer-logs-in-again.png"
     },
@@ -153,7 +153,7 @@
       "n": 19,
       "title": "Check-in: typing the ticket code marks Jordan Parreno as attended",
       "status": "PASS",
-      "seconds": 1.0,
+      "seconds": 1.8,
       "message": "",
       "shot": "19-check-in-typing-the-ticket-code-marks-jordan-parre.png"
     },
@@ -161,7 +161,7 @@
       "n": 20,
       "title": "Rule: the same ticket cannot be checked in twice",
       "status": "PASS",
-      "seconds": 0.5,
+      "seconds": 1.0,
       "message": "",
       "shot": "20-rule-the-same-ticket-cannot-be-checked-in-twice.png"
     },
@@ -169,7 +169,7 @@
       "n": 21,
       "title": "Rule: a wrong ticket code is rejected",
       "status": "PASS",
-      "seconds": 0.5,
+      "seconds": 1.0,
       "message": "",
       "shot": "21-rule-a-wrong-ticket-code-is-rejected.png"
     },
@@ -177,7 +177,7 @@
       "n": 22,
       "title": "Reports show 100% attendance, and the summary downloads as CSV",
       "status": "PASS",
-      "seconds": 0.7,
+      "seconds": 1.2,
       "message": "",
       "shot": "22-reports-show-100-attendance-and-the-summary-downlo.png"
     },
@@ -185,7 +185,7 @@
       "n": 23,
       "title": "The participant list downloads as CSV with Jordan Parreno's answers and ticket",
       "status": "PASS",
-      "seconds": 0.7,
+      "seconds": 1.2,
       "message": "",
       "shot": "23-the-participant-list-downloads-as-csv-with-jordan-.png"
     },
@@ -201,22 +201,22 @@
   "accounts": {
     "organizer_account": {
       "name": "Earl Jordan Parreno",
-      "email": "earl.parreno.1111012646@eventease.test"
+      "email": "earl.parreno.1112135149@eventease.test"
     },
     "participant_jordan_parreno": {
       "name": "Jordan Parreno",
-      "email": "jordan.parreno.1111012646@eventease.test"
+      "email": "jordan.parreno.1112135149@eventease.test"
     },
     "participant_ej_parreno": {
       "name": "EJ Parreno",
-      "email": "ej.parreno.1111012646@eventease.test"
+      "email": "ej.parreno.1112135149@eventease.test"
     },
-    "main_event": "Earl Jordan Parreno - Cebu Fun Run 1111012646",
+    "main_event": "Earl Jordan Parreno - Cebu Fun Run 1112135149",
     "cleanup": {
       "events_deleted": 3,
       "participants_deleted": [
-        "jordan.parreno.1111012646@eventease.test",
-        "ej.parreno.1111012646@eventease.test"
+        "jordan.parreno.1112135149@eventease.test",
+        "ej.parreno.1112135149@eventease.test"
       ],
       "organizer_deleted": true,
       "files_deleted": 2,

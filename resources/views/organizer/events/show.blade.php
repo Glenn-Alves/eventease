@@ -14,9 +14,34 @@
 
     <div class="py-12 max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-        <x-flash class="mb-4" />
+                <x-flash class="mb-4" />
+
+        {{-- Event approval status --}}
+        @if ($event->approval_status === 'pending')
+            <div class="flex items-start gap-3 rounded-xl border border-amber-700/40 bg-amber-50 p-4 text-amber-950" role="status">
+                <x-icon name="clock" class="mt-0.5 h-5 w-5 shrink-0" />
+                <div class="text-sm">
+                    <p class="font-semibold">Waiting for admin approval</p>
+                    <p>Participants cannot see this event yet. You can keep designing the registration form while you wait.</p>
+                </div>
+            </div>
+        @elseif ($event->approval_status === 'rejected')
+            <div class="flex items-start gap-3 rounded-xl border border-red-700/40 bg-red-50 p-4 text-red-950" role="alert">
+                <x-icon name="warning" class="mt-0.5 h-5 w-5 shrink-0" />
+                <div class="text-sm">
+                    <p class="font-semibold">This event was declined</p>
+
+                    @if ($event->approval_note)
+                        <p>Reason: {{ $event->approval_note }}</p>
+                    @endif
+
+                    <p>Open Edit details, fix the problem, and save. It is then sent to the admin for review again.</p>
+                </div>
+            </div>
+        @endif
 
         {{-- Event details --}}
+        
         <div class="bg-white rounded shadow overflow-hidden">
 
             @if ($event->thumbnailUrl())

@@ -53,12 +53,17 @@ public function isOwner(): bool
         && $this->id === static::where('role', 'admin')->orderBy('id')->value('id');
 }
 
+public function isApproved(): bool
+{
+    return $this->account_status === 'approved';
+}
+
 // The route name of the dashboard for this account type
 public function homeRoute(): string
 {
-    return match ($this->role) {
-        'admin' => 'admin.dashboard',
-        'organizer' => 'organizer.dashboard',
+    return match (true) {
+        $this->role === 'admin' => 'admin.dashboard',
+        $this->role === 'organizer' => $this->isApproved() ? 'organizer.dashboard' : 'organizer.pending',
         default => 'participant.dashboard',
     };
 }

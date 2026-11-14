@@ -35,6 +35,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Organizer accounts wait for an admin to approve them
+        if ($user->role === 'organizer') {
+            $user->forceFill(['account_status' => 'pending'])->save();
+        }
+
         event(new Registered($user));
 
         Auth::login($user);

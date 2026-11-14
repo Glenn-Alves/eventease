@@ -22,6 +22,16 @@
 
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
         <x-flash />
+        
+        @if ($waitingAccounts + $waitingEvents > 0)
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-700/40 bg-amber-50 p-4 text-amber-950" role="status">
+                <p class="flex items-center gap-2 text-sm font-medium">
+                    <x-icon name="clock" class="h-5 w-5" />
+                    {{ $waitingAccounts }} organizer account(s) and {{ $waitingEvents }} event(s) are waiting for your decision.
+                </p>
+                <x-action :href="route('admin.requests.index')" icon="check" variant="primary">Review requests</x-action>
+            </div>
+        @endif
 
         <div class="flex flex-wrap gap-3">
             <x-action :href="route('admin.events.index')" icon="calendar" variant="primary">Manage events</x-action>
