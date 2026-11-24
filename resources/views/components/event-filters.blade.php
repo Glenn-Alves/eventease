@@ -31,7 +31,7 @@
 @endphp
 
 <section aria-label="Search and filter events" class="rounded-xl bg-white p-4 shadow"
-         x-data="{ open: false }" x-on:keydown.escape="open = false">
+         x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false">
 
     <form method="GET" action="{{ route($routeName) }}">
         @if ($type)
@@ -45,7 +45,7 @@
                 <x-icon name="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-600" />
                 <input id="q" name="q" type="search" value="{{ $filters['q'] }}"
                        placeholder="Search by event name or place, for example: night run, Cebu"
-                       x-on:focus="open = true" x-on:click="open = true"
+                       
                        class="w-full rounded-md border-gray-400 ps-10 text-sm shadow-sm">
             </div>
 
