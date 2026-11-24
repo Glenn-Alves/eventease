@@ -102,4 +102,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+// Unknown addresses: show the friendly 404 page, with the session started
+Route::fallback(fn () => abort(404));
+
 require __DIR__.'/auth.php';
