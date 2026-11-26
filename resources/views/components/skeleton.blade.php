@@ -1,0 +1,1 @@
+<div aria-hidden="true" {{ $attributes->merge(['class' => 'skeleton']) }}></div>

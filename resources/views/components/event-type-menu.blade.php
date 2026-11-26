@@ -1,3 +1,4 @@
+
 @props(['routeName', 'type' => null, 'counts'])
 
 @php
@@ -17,7 +18,7 @@
                 $count = $value === '' ? $counts->sum() : ($counts[$value] ?? 0);
             @endphp
 
-            <a href="{{ $value === '' ? route($routeName, $keep) : route($routeName, $keep + ['type' => $value]) }}"
+            <a href="{{ $value === '' ? route($routeName, $keep) : route($routeName, $keep + ['type' => $value]) }}" data-skeleton
                @if ($active) aria-current="page" @endif
                class="flex items-center justify-between gap-3 px-3 py-2 rounded text-sm whitespace-nowrap {{ $active ? 'bg-gray-800 text-white' : 'text-gray-700 hover:bg-gray-100' }}">
                 <span>{{ $label }}</span>

@@ -9,11 +9,12 @@
 @endphp
 
 <article class="flex flex-col overflow-hidden rounded-xl bg-white shadow">
-    @if ($event->thumbnailUrl())
-        <img src="{{ $event->thumbnailUrl() }}"
-             alt="Poster of {{ $event->title }}"
-             loading="lazy"
-             class="aspect-video w-full object-cover">
+   @if ($event->thumbnailUrl())
+        <x-poster
+            :src="$event->thumbnailUrl()"
+            :alt="'Poster of '.$event->title"
+            class="h-40 w-full"
+        />
     @else
         <div class="flex aspect-video w-full items-center justify-center bg-gray-100 text-gray-500">
             <x-icon name="photo" class="h-10 w-10" />

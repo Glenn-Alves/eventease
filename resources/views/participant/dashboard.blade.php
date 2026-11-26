@@ -56,7 +56,10 @@
             />
 
             {{-- Event filters and cards --}}
-            <div class="min-w-0 flex-1 space-y-6">
+            <div class="min-w-0 flex-1 space-y-6"
+                x-data="{ loading: false }"
+                x-on:events-loading.window="loading = true; setTimeout(() => loading = false, 8000)"
+                x-on:pageshow.window="if ($event.persisted) loading = false">
 
                 <x-event-filters
                     route-name="participant.dashboard"
@@ -65,7 +68,20 @@
                     :count="$events->count()"
                 />
 
-                <div class="grid content-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {{-- Placeholder cards, shown the moment a search or filter is sent --}}
+                <div x-show="loading" style="display: none;" role="status"
+                    class="grid content-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                    <span class="sr-only">Loading events</span>
+
+                    @for ($i = 0; $i < 6; $i++)
+                        <x-event-card-skeleton />
+                    @endfor
+
+                </div>
+
+                {{-- Real event cards --}}
+                <div x-show="! loading" class="grid content-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
                     @forelse ($events as $event)
                         <x-event-card

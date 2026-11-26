@@ -1,3 +1,4 @@
+
 @props(['routeName', 'filters', 'type' => null, 'count' => 0])
 
 @php
@@ -33,7 +34,7 @@
 <section aria-label="Search and filter events" class="rounded-xl bg-white p-4 shadow"
          x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false">
 
-    <form method="GET" action="{{ route($routeName) }}">
+    <form method="GET" action="{{ route($routeName) }}" data-skeleton>
         @if ($type)
             <input type="hidden" name="type" value="{{ $type }}">
         @endif
@@ -45,7 +46,6 @@
                 <x-icon name="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-600" />
                 <input id="q" name="q" type="search" value="{{ $filters['q'] }}"
                        placeholder="Search by event name or place, for example: night run, Cebu"
-                       
                        class="w-full rounded-md border-gray-400 ps-10 text-sm shadow-sm">
             </div>
 
@@ -122,7 +122,7 @@
         </p>
 
         @foreach ($chips as $chip)
-            <a href="{{ request()->fullUrlWithoutQuery(array_merge($chip['remove'], ['page'])) }}"
+            <a href="{{ request()->fullUrlWithoutQuery(array_merge($chip['remove'], ['page'])) }}" data-skeleton
                class="tap inline-flex items-center gap-1 rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-900 ring-1 ring-inset ring-indigo-700/30 hover:bg-indigo-200">
                 {{ $chip['label'] }}
                 <x-icon name="close" class="h-3.5 w-3.5" />
@@ -131,7 +131,7 @@
         @endforeach
 
         @if ($active)
-            <a href="{{ route($routeName, array_filter(['type' => $type])) }}"
+            <a href="{{ route($routeName, array_filter(['type' => $type])) }}" data-skeleton
                class="tap inline-flex items-center text-sm font-medium text-indigo-800 underline">Clear all</a>
         @endif
     </div>
