@@ -12,8 +12,7 @@
     <title>{{ $formTitle }}</title>
     @include('partials.favicon')
     @if ($theme['font'] === 'rounded')
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet">
+        
     @endif
 
     <style>
@@ -289,6 +288,46 @@
                     @endif
                 @endforeach
             </div>
+
+
+            <div class="ee-full">
+    <label for="consent" class="flex items-start gap-3 text-sm">
+        <input
+            id="consent"
+            name="consent"
+            type="checkbox"
+            value="1"
+            required
+            @checked(old('consent'))
+            class="mt-0.5 h-5 w-5 shrink-0 rounded"
+        >
+
+        <span>
+            I agree to share my name, email, and the answers above with
+            {{ $event->organizer?->name ?? 'the organizer' }} and the EventEase admins.
+            I have read the
+            <a href="{{ route('terms') }}" target="_blank" rel="noopener" class="underline">
+                Terms and Conditions
+            </a>
+            and the
+            <a href="{{ route('privacy') }}" target="_blank" rel="noopener" class="underline">
+                Privacy Policy
+            </a>.
+        </span>
+    </label>
+
+    @error('consent')
+        <p class="mt-2 text-sm font-medium" role="alert">{{ $message }}</p>
+    @enderror
+</div>
+
+<button type="submit" class="ee-btn" @disabled($preview)>
+    {{ $theme['button'] }}
+</button>
+            
+            
+
+            
 
             <button type="submit" class="ee-btn" @disabled($preview)>{{ $theme['button'] }}</button>
         </form>

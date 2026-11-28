@@ -194,7 +194,12 @@ class EventController extends Controller
             }
         }
 
-        $request->validate($rules, [], $attributes);
+        // Require participants to accept the consent checkbox
+        $rules['consent'] = ['accepted'];
+
+        $request->validate($rules, [
+            'consent.accepted' => 'Please tick the box to agree before you register.',
+        ], $attributes);
 
         $answers = $request->input('answers', []);
         $categoryId = $event->supportsCategories()
@@ -245,6 +250,11 @@ class EventController extends Controller
                 'event_category_id' => $category?->id,
                 'ticket_code' => strtoupper(Str::random(10)),
             ]);
+
+            // Record when the participant gave consent
+            $registration->forceFill([
+                'consented_at' => now(),
+            ])->save();
 
             foreach ($fields as $field) {
                 $value = $answers[$field->id] ?? null;

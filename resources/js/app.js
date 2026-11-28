@@ -1,5 +1,8 @@
 import Alpine from 'alpinejs';
 import sort from '@alpinejs/sort';
+import '@fontsource/figtree/latin-400.css';
+import '@fontsource/figtree/latin-500.css';
+import '@fontsource/figtree/latin-600.css';
 
 window.Alpine = Alpine;
 

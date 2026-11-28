@@ -20,6 +20,10 @@ use App\Http\Controllers\Admin\RequestController as AdminRequestController;
 Route::get('/', [PublicEventController::class, 'index'])->name('home');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('events.show');
 
+// Legal pages (public access)
+Route::view('/terms', 'legal.terms')->name('terms');
+Route::view('/privacy', 'legal.privacy')->name('privacy');
+
 Route::get('/dashboard', function () {
     return redirect()->route(auth()->user()->homeRoute());
 })->middleware('auth')->name('dashboard');
