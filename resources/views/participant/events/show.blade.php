@@ -8,14 +8,12 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 class="text-xl font-semibold text-gray-800">{{ $event->title }}</h2>
-            <a href="{{ route('participant.dashboard') }}" class="tap inline-flex items-center gap-1.5 text-sm text-gray-800 underline">
-                <x-icon name="back" class="h-4 w-4" /> Back to events
-            </a>
+            
         </div>
     </x-slot>
 
     <div class="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
-
+        <x-back-link :href="route('participant.dashboard')">Back to events</x-back-link>
         <x-stepper :current="$registration ? 3 : 1" />
 
         <div class="overflow-hidden rounded-xl bg-white shadow">

@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap justify-between items-center gap-3">
             <h2 class="font-semibold text-xl text-gray-800">{{ $event->title }}</h2>
-            <a href="{{ route('organizer.events.index') }}" class="text-sm underline text-gray-600">Back to events</a>
+           
         </div>
     </x-slot>
 
@@ -14,7 +14,11 @@
 
     <div class="py-12 max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                <x-flash class="mb-4" />
+    <x-back-link :href="route('organizer.events.index')">
+        Back to events
+    </x-back-link>
+
+    <x-flash class="mb-4" />
 
         {{-- Event approval status --}}
         @if ($event->approval_status === 'pending')

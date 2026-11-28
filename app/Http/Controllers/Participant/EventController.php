@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Support\Qr;
 use App\Support\EventFilters;
+use Illuminate\Support\Carbon;
 
 class EventController extends Controller
 {
@@ -288,8 +289,68 @@ class EventController extends Controller
             ->where('event_id', $event->id)
             ->first();
 
-        return redirect()->route('participant.registrations.show', $registration)
-            ->with('status', 'Registration successful! Show this QR code at the entrance.');
+        // Redirect to the new thank-you page
+        return redirect()->route('participant.registrations.thanks', $registration);
+    }
+
+    // The page shown right after a participant registers
+    public function thanks(Registration $registration)
+    {
+        abort_unless($registration->user_id === auth()->id(), 404);
+
+        $registration->load(['event', 'category']);
+
+        return view('participant.thanks', [
+            'registration' => $registration,
+            'qr' => Qr::svg($registration->ticket_code, 200),
+        ]);
+    }
+
+    // Downloads a calendar file (.ics) for the event
+    public function calendar(Registration $registration)
+    {
+        abort_unless($registration->user_id === auth()->id(), 404);
+
+        $registration->load('event');
+
+        $event = $registration->event;
+
+        $start = Carbon::parse(
+            $event->event_date->format('Y-m-d').' '.$event->event_time,
+            config('app.timezone')
+        );
+
+        $end = $start->copy()->addHours(2);
+
+        // Escape characters with special meaning in calendar files
+        $escape = fn (?string $text) => str_replace(
+            ["\\", ';', ',', "\r\n", "\n", "\r"],
+            ['\\\\', '\;', '\,', '\n', '\n', '\n'],
+            (string) $text
+        );
+
+        $lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//EventEase//Ticket//EN',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'BEGIN:VEVENT',
+            'UID:registration-'.$registration->id.'@eventease',
+            'DTSTAMP:'.now()->setTimezone('UTC')->format('Ymd\THis\Z'),
+            'DTSTART:'.$start->copy()->setTimezone('UTC')->format('Ymd\THis\Z'),
+            'DTEND:'.$end->copy()->setTimezone('UTC')->format('Ymd\THis\Z'),
+            'SUMMARY:'.$escape($event->title),
+            'LOCATION:'.$escape($event->location),
+            'DESCRIPTION:'.$escape('Your EventEase ticket code: '.$registration->ticket_code),
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ];
+
+        return response(implode("\r\n", $lines)."\r\n", 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="'.(Str::slug($event->title) ?: 'event').'.ics"',
+        ]);
     }
 
     public function myRegistrations()

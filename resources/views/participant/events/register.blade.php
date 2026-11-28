@@ -19,7 +19,24 @@
         *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; background: var(--ee-bg); color: var(--ee-text); font-family: var(--ee-font); line-height: 1.5; }
         .ee-page { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
-        .ee-back { display: inline-block; margin-bottom: 12px; font-size: .875rem; color: inherit; opacity: .8; }
+        .ee-back {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            margin-bottom: 16px;
+            padding: 0 18px;
+            font-size: .9rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--ee-text);
+            background: var(--ee-card);
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: var(--ee-radius);
+            transition: background-color .15s, color .15s, border-color .15s;
+        }
+            .ee-back:hover { color: var(--ee-primary-text); background: var(--ee-primary); border-color: var(--ee-primary); }
+            .ee-back:focus-visible { outline: 3px solid var(--ee-primary); outline-offset: 2px; }
+            @media (prefers-reduced-motion: reduce) { .ee-back { transition: none; } }
         .ee-preview { margin-bottom: 12px; padding: 10px 14px; font-size: .875rem; color: var(--ee-primary-text); background: var(--ee-primary); border-radius: var(--ee-radius); }
         .ee-preview a { margin-left: 8px; color: inherit; }
         .ee-banner { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 16px; border-radius: var(--ee-radius); }
@@ -55,6 +72,29 @@
         .ee-cat-sub { display: block; margin-top: 4px; font-size: .8rem; color: #6b7280; }
         .ee-incl { margin: 8px 0 0; padding-left: 18px; font-size: .8rem; color: #6b7280; }
         .ee-error { margin: 4px 0 0; font-size: .8rem; color: #b91c1c; }
+        .ee-consent {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 24px;
+            font-size: .9rem;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .ee-consent input {
+            flex: none;
+            width: 18px;
+            height: 18px;
+            margin: 3px 0 0;
+            accent-color: var(--ee-primary);
+        }
+
+        .ee-consent a {
+            color: inherit;
+            font-weight: 600;
+            text-decoration: underline;
+        }
         .ee-btn { display: inline-block; margin-top: 28px; padding: 12px 28px; font: inherit; font-weight: 600; text-decoration: none; color: var(--ee-primary-text); background: var(--ee-primary); border: 0; border-radius: var(--ee-radius); cursor: pointer; }
         .ee-btn:disabled { opacity: .5; cursor: not-allowed; }
         .ee-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -77,7 +117,7 @@
             <a href="{{ route('organizer.events.form.edit', $event) }}">Back to the designer</a>
         </div>
     @else
-        <a class="ee-back" href="{{ route('participant.events.show', $event) }}">&larr; Back to event</a>
+        <a class="ee-back" href="{{ route('participant.events.show', $event) }}">Back to event</a>
     @endif
 
     @if ($external)
@@ -290,36 +330,33 @@
             </div>
 
 
-            <div class="ee-full">
-    <label for="consent" class="flex items-start gap-3 text-sm">
-        <input
-            id="consent"
-            name="consent"
-            type="checkbox"
-            value="1"
-            required
-            @checked(old('consent'))
-            class="mt-0.5 h-5 w-5 shrink-0 rounded"
-        >
+            <label class="ee-consent" for="consent">
+    <input
+        id="consent"
+        name="consent"
+        type="checkbox"
+        value="1"
+        required
+        @checked(old('consent'))
+    >
 
-        <span>
-            I agree to share my name, email, and the answers above with
-            {{ $event->organizer?->name ?? 'the organizer' }} and the EventEase admins.
-            I have read the
-            <a href="{{ route('terms') }}" target="_blank" rel="noopener" class="underline">
-                Terms and Conditions
-            </a>
-            and the
-            <a href="{{ route('privacy') }}" target="_blank" rel="noopener" class="underline">
-                Privacy Policy
-            </a>.
-        </span>
-    </label>
+    <span>
+        I agree to share my name, email, and the answers above with
+        {{ $event->organizer?->name ?? 'the organizer' }} and the EventEase admins.
+        I have read the
+        <a href="{{ route('terms') }}" target="_blank" rel="noopener">
+            Terms and Conditions
+        </a>
+        and the
+        <a href="{{ route('privacy') }}" target="_blank" rel="noopener">
+            Privacy Policy
+        </a>.
+    </span>
+</label>
 
-    @error('consent')
-        <p class="mt-2 text-sm font-medium" role="alert">{{ $message }}</p>
-    @enderror
-</div>
+@if ($errors->has('consent'))
+    <p class="ee-error" role="alert">{{ $errors->first('consent') }}</p>
+@endif
 
 <button type="submit" class="ee-btn" @disabled($preview)>
     {{ $theme['button'] }}
@@ -329,7 +366,7 @@
 
             
 
-            <button type="submit" class="ee-btn" @disabled($preview)>{{ $theme['button'] }}</button>
+            
         </form>
     @endif
 </div>

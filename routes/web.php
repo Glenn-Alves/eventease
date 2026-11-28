@@ -1,3 +1,4 @@
+
 <?php
 
 use App\Http\Controllers\Organizer\DashboardController;
@@ -28,6 +29,7 @@ Route::get('/dashboard', function () {
     return redirect()->route(auth()->user()->homeRoute());
 })->middleware('auth')->name('dashboard');
 
+// Organizer routes
 Route::middleware(['auth', 'role:organizer'])
     ->prefix('organizer')->name('organizer.')->group(function () {
 
@@ -66,8 +68,10 @@ Route::middleware(['auth', 'role:organizer'])
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
     });
 
-    Route::middleware(['auth', 'role:admin'])
+// Admin routes
+Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')->name('admin.')->group(function () {
+
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
@@ -81,6 +85,7 @@ Route::middleware(['auth', 'role:organizer'])
             Route::get('/admins', [AdminAccountController::class, 'index'])->name('admins.index');
             Route::post('/admins', [AdminAccountController::class, 'store'])->name('admins.store');
             Route::delete('/admins/{user}', [AdminAccountController::class, 'destroy'])->name('admins.destroy');
+
             Route::get('/requests', [AdminRequestController::class, 'index'])->name('requests.index');
             Route::post('/requests/accounts/{user}/approve', [AdminRequestController::class, 'approveAccount'])->name('requests.accounts.approve');
             Route::post('/requests/accounts/{user}/decline', [AdminRequestController::class, 'declineAccount'])->name('requests.accounts.decline');
@@ -89,23 +94,40 @@ Route::middleware(['auth', 'role:organizer'])
         });
     });
 
+// Participant routes
 Route::middleware(['auth', 'role:participant'])
     ->prefix('participant')->name('participant.')->group(function () {
+
         Route::get('/dashboard', [ParticipantEventController::class, 'index'])->name('dashboard');
-        Route::get('/events', fn () => redirect()->route('participant.dashboard', request()->query()))->name('events.index');
+
+        Route::get('/events', fn () => redirect()->route('participant.dashboard', request()->query()))
+            ->name('events.index');
+
         Route::get('/events/{event}', [ParticipantEventController::class, 'show'])->name('events.show');
         Route::get('/events/{event}/register', [ParticipantEventController::class, 'registerForm'])->name('events.register.form');
         Route::post('/events/{event}/register', [ParticipantEventController::class, 'register'])->name('events.register');
-        Route::get('/registrations', [ParticipantEventController::class, 'myRegistrations'])->name('registrations.index');
-        Route::get('/registrations/{registration}', [ParticipantEventController::class, 'ticket'])->name('registrations.show');
+
+        Route::get('/registrations', [ParticipantEventController::class, 'myRegistrations'])
+            ->name('registrations.index');
+
+        // Registration confirmation and calendar download
+        Route::get('/registrations/{registration}/thanks', [ParticipantEventController::class, 'thanks'])
+            ->name('registrations.thanks');
+
+        Route::get('/registrations/{registration}/calendar', [ParticipantEventController::class, 'calendar'])
+            ->name('registrations.calendar');
+
+        // Registration ticket
+        Route::get('/registrations/{registration}', [ParticipantEventController::class, 'ticket'])
+            ->name('registrations.show');
     });
 
+// Profile routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 // Unknown addresses: show the friendly 404 page, with the session started
 Route::fallback(fn () => abort(404));
