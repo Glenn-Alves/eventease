@@ -67,10 +67,14 @@
 
     <section>
         <h2 id="cookies">5. Cookies and storage</h2>
-        <p>
-            EventEase uses only the cookies it needs to work: one to keep you logged in and one for security. On the check-in page, your browser also
-            remembers your sound on or off choice. We do not use advertising or tracking cookies.
-        </p>
+        <p>EventEase uses only the cookies it needs to work. We do not use advertising or tracking cookies.</p>
+        <ul>
+            <li><strong>Session cookie</strong> (its name ends in _session): keeps you logged in.</li>
+            <li><strong>XSRF-TOKEN cookie:</strong> protects forms from fake requests.</li>
+            <li><strong>Remember me cookie:</strong> only if you tick "Remember me" when you log in.</li>
+            <li><strong>Local storage in your browser:</strong> remembers that you closed the cookie notice, and your sound on or off choice on the check-in page. This stays on your own device.</li>
+        </ul>
+        <p>You can delete cookies in your browser settings, but then you will be logged out.</p>
     </section>
 
     <section>

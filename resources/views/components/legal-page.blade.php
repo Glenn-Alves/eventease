@@ -1,7 +1,9 @@
 @props(['title', 'sections' => []])
 
-<x-public-layout :title="$title.' | EventEase'">
+<x-public-layout :title="$title.' | EventEase'" hide-dashboard>
     <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+        <x-back-home />
+
         <article class="rounded-xl bg-white p-6 shadow sm:p-10">
             <h1 class="text-3xl font-bold text-slate-900">{{ $title }}</h1>
             <p class="mt-2 text-sm text-gray-700">Last updated: {{ config('legal.updated') }}</p>

@@ -24,6 +24,7 @@ Route::get('/events/{event}', [PublicEventController::class, 'show'])->name('eve
 // Legal pages (public access)
 Route::view('/terms', 'legal.terms')->name('terms');
 Route::view('/privacy', 'legal.privacy')->name('privacy');
+Route::view('/faq', 'faq')->name('faq');
 
 Route::get('/dashboard', function () {
     return redirect()->route(auth()->user()->homeRoute());

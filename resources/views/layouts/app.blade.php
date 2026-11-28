@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -12,6 +13,7 @@
         <!-- Scripts (the Figtree font is loaded from app.js, see step 2) -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
+
     <body class="font-sans antialiased">
         <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow">
             Skip to content
@@ -35,6 +37,7 @@
             </main>
 
             <x-site-footer />
+            <x-cookie-notice />
         </div>
     </body>
 </html>
